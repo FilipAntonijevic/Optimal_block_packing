@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://c0ii8ntaoejcr"]
+
+[node name="BlockStorage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -902.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 250.0
+offset_bottom = 649.0
+color = Color(0.20871, 0.20871, 0.20871, 1)
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 13.0
+offset_right = 191.0
+offset_bottom = 36.0
+text = "Gnerated blocks:"

@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://dganlbgu1scp2"]
+
+[ext_resource type="Script" path="res://Scripts/Container.gd" id="1_eqvcn"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1u26l"]
+
+[node name="Container" type="Node3D"]
+script = ExtResource("1_eqvcn")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.901077, -0.382185, 0.204926, 0, 0.472551, 0.881303, -0.433659, 0.794122, -0.425805, 0, -9.22814, 0)
+shadow_enabled = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("BoxMesh_1u26l")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.720349, -0.42155, 0.550811, 0.0181168, 0.805284, 0.592612, -0.693376, -0.416908, 0.587723, 3.71328, 5.53443, 3.61695)
+current = true
