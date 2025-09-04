@@ -13,9 +13,11 @@ extends Node
 
 @export var number_of_blocks : int = 1
 
+signal draw_container_signal()
+signal add_blocks_signal()
+
 func _ready() -> void:
 	pass 
-
 
 func _on_container_width_line_edit_text_submitted(new_text: String) -> void:
 	if new_text.to_float() < 1:
@@ -28,7 +30,8 @@ func _on_container_width_line_edit_text_submitted(new_text: String) -> void:
 	if $Block_min_width_line_edit.text.to_float() > container_width:
 		block_min_width = container_width
 		$Block_min_width_line_edit.text = str(block_min_width)
-		
+	GlobalData.container_width = container_width
+	emit_signal("draw_container_signal")
 func _on_container_depth_line_edit_text_submitted(new_text: String) -> void:
 	if new_text.to_float() < 1:
 		container_depth = 1
@@ -40,7 +43,9 @@ func _on_container_depth_line_edit_text_submitted(new_text: String) -> void:
 	if $Block_max_depth_line_edit.text.to_float() > container_depth:
 		block_min_depth = container_depth
 		$Block_max_depth_line_edit.text = str(block_min_depth)
-
+	GlobalData.container_depth = container_depth
+	emit_signal("draw_container_signal")
+	
 func _on_block_min_width_line_edit_text_submitted(new_text: String) -> void:
 	var parsed = new_text.to_float()
 	if parsed > container_width:
@@ -107,3 +112,19 @@ func _on_number_of_blocks_line_edit_text_submitted(new_text: String) -> void:
 		parsed = 1
 	number_of_blocks = parsed
 	$Number_of_blocks_line_edit.text = str(number_of_blocks)
+
+
+func _on_generate_blocks_button_pressed() -> void:
+	GlobalData.blocks.clear()
+	for i in range(number_of_blocks):
+		var block = Block.new()
+		block.id = i + 1
+		block.width = randf_range(block_min_width, block_max_width)
+		block.depth = randf_range(block_min_depth, block_max_depth)
+		block.height = randf_range(block_min_height, block_max_height)
+		GlobalData.blocks.append(block)
+	
+	for block in GlobalData.blocks:
+		print("Block id: " + str(block.id) + "\n")
+func _on_calculate_best_block_order_button_pressed() -> void:
+	emit_signal("add_blocks_signal")
