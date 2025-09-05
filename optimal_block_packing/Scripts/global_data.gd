@@ -7,6 +7,10 @@ class_name global_data extends Node
 
 @export var blocks : Array = []
 @export var candidate_points: Array = []
+
+@export var animations_bool = true
+@export var package_height = 0
+
 func _ready() -> void:
 	add_candidate_point(0,0,0)
 	

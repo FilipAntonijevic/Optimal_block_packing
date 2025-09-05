@@ -82,16 +82,26 @@ func _unhandled_input(event: InputEvent) -> void:
 			camera.position.y += zoom_speed
 
 func add_blocks() -> void:
-	for block in GlobalData.blocks:
-		add_block(block)
+	GlobalData.candidate_points.clear()
+	GlobalData.candidate_points.append(Vector3(0,0,0))
+	for block in blocks_node.get_children():
+		block.queue_free()
+
+	if GlobalData.animations_bool:
+		for block in GlobalData.blocks:
+			await add_block(block)   
+	else:
+		for block in GlobalData.blocks:
+			add_block(block)
+
 
 func add_block(block : Block) -> void:
-	var best_point = find_best_point_and_place_block(block)
+	var best_point = await find_best_point_and_place_block(block)
 	var t_block_x : Vector3 = Vector3(best_point.x + block.width , best_point.y , best_point.z)
-	var t_block_z : Vector3 = Vector3(best_point.x , best_point.y  + block.height, best_point.z)
-	var t_block_y : Vector3 = Vector3(best_point.x , best_point.y , best_point.z + block.depth)
+	var t_block_y : Vector3 = Vector3(best_point.x , best_point.y  + block.height, best_point.z)
+	var t_block_z : Vector3 = Vector3(best_point.x , best_point.y , best_point.z + block.depth)
 	update_candidate_points(t_block_x, t_block_y, t_block_z)
-
+	
 func find_best_point_and_place_block(block) -> Vector3:
 	var best_point: Vector3
 
@@ -106,40 +116,51 @@ func find_best_point_and_place_block(block) -> Vector3:
 	mesh_instance.mesh = box
 
 	var mat = StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
 	mat.albedo_color = Color(0.8, 0.8, 0.8)
 	mesh_instance.material_override = mat
 
-	mesh_instance.position = best_point + Vector3(block.width/2, block.height/2, block.depth/2)
+	if GlobalData.package_height < best_point.y + block.height:
+		GlobalData.package_height = best_point.y + block.height
 
-	blocks_node.add_child(mesh_instance)
-	
+	if GlobalData.animations_bool:
+		var start_pos = best_point + Vector3(block.width/2, block.height/2, block.depth/2) + Vector3(0, 20, 0)
+		var end_pos   = best_point + Vector3(block.width/2, block.height/2, block.depth/2)
+		mesh_instance.position = start_pos
+		blocks_node.add_child(mesh_instance) 
+		var tween := create_tween()
+		tween.tween_property(mesh_instance, "position", end_pos, 1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		await tween.finished
+	else:
+		mesh_instance.position = best_point + Vector3(block.width/2, block.height/2, block.depth/2)
+		blocks_node.add_child(mesh_instance)
+
 	return best_point
 	
 func update_candidate_points(t_block_x, t_block_y, t_block_z) -> void:
 	var t_best_x
-	var t_best_x_max = 0
+	var t_best_x_max = -1
 	var t_best_z
-	var t_best_z_max = 0
+	var t_best_z_max = -1
 	var t_best_y
 	var t_best_y_max = -1
 	
-	var illegal_points : Array
+	var illegal_points : Array = []
 	if t_block_x.x + GlobalData.min_block_width > GlobalData.container_width:
 		illegal_points.append(t_block_x)
 	if t_block_z.z + GlobalData.min_block_depth > GlobalData.container_depth:
 		illegal_points.append(t_block_z)
 		
 	for t in GlobalData.candidate_points:
-		if t_best_x not in illegal_points:
+		if t_block_x not in illegal_points:
 			if t.x <= t_block_x.x and t.z <= t_block_x.z and t.y <= t_block_x.y:
-				var max = t.x * t.y
+				var max = t.x * t.z
 				if max > t_best_x_max:
 					t_best_x_max = max
 					t_best_x = t
-		if t_best_z not in illegal_points:
+		if t_block_z not in illegal_points:
 			if t.x <= t_block_z.x and t.z <= t_block_z.z and t.y <= t_block_z.y:
-				var max = t.x * t.y
+				var max = t.x * t.z
 				if max > t_best_z_max:
 					t_best_z_max = max
 					t_best_z = t
@@ -148,14 +169,26 @@ func update_candidate_points(t_block_x, t_block_y, t_block_z) -> void:
 			if max > t_best_y_max:
 				t_best_y_max = max
 				t_best_y = t
-		if t.x < t_block_x.x and t.x > t_block_z.x and t.z < t_block_z.z and t.z > t_block_x.z and t.y < t_block_x.y:
+		if t.x <= t_block_x.x and t.x >= t_block_z.x and t.z <= t_block_z.z and t.z >= t_block_x.z and t.y <= t_block_x.y:
 			illegal_points.append(t)
 	
+	print("All points:")
+	print(GlobalData.candidate_points)
+	print("Ilegal points: ")
+	print(illegal_points)	
 	for t in illegal_points:
 		GlobalData.candidate_points.erase(t)
-		
+
+	print("All points after deletion:")
+	print(GlobalData.candidate_points)
+	
 	if t_best_x != null:
 		GlobalData.add_candidate_point(t_block_x.x, t_best_x.y, t_block_x.z)
 	if t_best_z != null:
 		GlobalData.add_candidate_point(t_block_z.x, t_best_z.y, t_block_z.z)
+	print("JAKO BITNO: ")
+	print(t_block_y)
 	GlobalData.add_candidate_point(t_best_y.x, t_block_y.y, t_best_y.z)
+	
+	print("All points after adding new points:")
+	print(GlobalData.candidate_points)

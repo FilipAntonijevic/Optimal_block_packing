@@ -9,9 +9,9 @@ extends Node
 @export var block_min_depth : float = 0.1
 @export var block_max_depth : float = 1
 @export var block_min_height : float = 0.1
-@export var block_max_height : float = 5
+@export var block_max_height : float = 1
 
-@export var number_of_blocks : int = 1
+@export var number_of_blocks : int = 10
 
 signal draw_container_signal()
 signal add_blocks_signal()
@@ -128,3 +128,7 @@ func _on_generate_blocks_button_pressed() -> void:
 		print("Block id: " + str(block.id) + "\n")
 func _on_calculate_best_block_order_button_pressed() -> void:
 	emit_signal("add_blocks_signal")
+
+
+func _on_animation_check_button_toggled(toggled_on: bool) -> void:
+	GlobalData.animations_bool = toggled_on

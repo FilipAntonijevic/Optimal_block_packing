@@ -222,6 +222,7 @@ offset_left = 130.0
 offset_top = 512.0
 offset_right = 174.0
 offset_bottom = 536.0
+button_pressed = true
 
 [node name="Label12" type="Label" parent="."]
 layout_mode = 0
