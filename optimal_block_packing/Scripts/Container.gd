@@ -22,6 +22,9 @@ func draw_container() -> void:
 	for child in container_node.get_children():
 		if child is MeshInstance3D:
 			child.queue_free()
+	container_node.rotation = Vector3.ZERO
+	container_node.global_transform = Transform3D.IDENTITY
+
 
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_LINES)
@@ -75,7 +78,6 @@ func position_camera() -> void:
 	camera_min_height = camera.position.y
 
 func _unhandled_input(event: InputEvent) -> void:
-	# rotacija na levi klik
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
@@ -84,7 +86,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				rotating = false
 
-	# zoom na scroll
 	if event is InputEventMouseButton and event.pressed:
 		var camera = $Camera3D
 		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
@@ -92,21 +93,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			camera.position.y += zoom_speed
 
-		# rotacija kada se pomera miš
 	if event is InputEventMouseMotion and rotating:
 		var delta = event.position - last_mouse_pos
-		var angle = deg_to_rad(-delta.x * 0.3)  # brzina rotacije
+		var angle = deg_to_rad(-delta.x * 0.3)
 
-		# pivot u lokalnim koordinatama (sredina kontejnera)
 		var pivot_local = Vector3(GlobalData.container_width/2.0, 0, GlobalData.container_depth/2.0)
 
-		# prebaci pivot u globalne koordinate
 		var pivot_global = container_node.to_global(pivot_local)
 
-		# trenutni global transform
 		var T = container_node.global_transform
 
-		# konstrukcija transformacija: translate back * rotate * translate to origin * T
 		var translate_to_origin = Transform3D(Basis(), -pivot_global)
 		var rotate = Transform3D(Basis(Vector3.UP, angle), Vector3.ZERO)
 		var translate_back = Transform3D(Basis(), pivot_global)
@@ -114,9 +110,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		container_node.global_transform = translate_back * rotate * translate_to_origin * T
 
 		last_mouse_pos = event.position
-
-
-
 
 func add_blocks() -> void:
 	GlobalData.candidate_points.clear()
