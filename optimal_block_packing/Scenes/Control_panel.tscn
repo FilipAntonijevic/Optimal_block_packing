@@ -259,4 +259,5 @@ text = "Calculate"
 [connection signal="text_changed" from="Container_width_line_edit" to="." method="_on_container_width_line_edit_text_changed"]
 [connection signal="text_submitted" from="Container_width_line_edit" to="." method="_on_container_width_line_edit_text_submitted"]
 [connection signal="pressed" from="Generate_blocks_button" to="." method="_on_generate_blocks_button_pressed"]
+[connection signal="toggled" from="Animation_check_button" to="." method="_on_animation_check_button_toggled"]
 [connection signal="pressed" from="Calculate_best_block_order_button" to="." method="_on_calculate_best_block_order_button_pressed"]

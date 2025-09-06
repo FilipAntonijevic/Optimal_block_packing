@@ -29,4 +29,6 @@ sky_mode = 1
 transform = Transform3D(0.720349, -0.42155, 0.550811, 0.0181168, 0.805284, 0.592612, -0.693376, -0.416908, 0.587723, 3.71328, 5.53443, 3.61695)
 current = true
 
-[node name="Blocks" type="Node3D" parent="."]
+[node name="Container_node" type="Node3D" parent="."]
+
+[node name="Blocks" type="Node3D" parent="Container_node"]
