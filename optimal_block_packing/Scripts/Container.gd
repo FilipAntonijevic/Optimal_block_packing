@@ -5,9 +5,10 @@ extends Node3D
 
 @export var height: float = 1000
 @export var color: Color = Color(1, 1, 1)
-@export var zoom_speed: float = 1
-@export var camera_min_height: float = 0
+@export var zoom_speed: float = GlobalData.max_block_height * 0.25
+@export var camera_min_height: float = -10
 @export var camera_max_height: float = 1000
+@export var camera_autoscroll_enabled : bool = true
 
 var camera_distance: float
 var rotating := false
@@ -89,10 +90,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		var camera = $Camera3D
 		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			camera_autoscroll_enabled = false
 			camera.position.y = max(camera_min_height, camera.position.y - zoom_speed)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			camera.position.y += zoom_speed
-
+			camera.position.y = min(max(GlobalData.container_width ,GlobalData.container_depth) * 2 + GlobalData.get_height(), camera.position.y + zoom_speed)
+			if camera.position.y >= GlobalData.get_height():
+				camera_autoscroll_enabled = true
+				
 	if event is InputEventMouseMotion and rotating:
 		var delta = event.position - last_mouse_pos
 		var angle = deg_to_rad(-delta.x * 0.3)
@@ -132,7 +136,10 @@ func add_block(block : Block) -> void:
 	var t_block_y: CandidatePoint = CandidatePoint.new(best_point.x , best_point.y  + block.height, best_point.z, 0, 0)
 	var t_block_z: CandidatePoint = CandidatePoint.new(best_point.x , best_point.y , best_point.z + block.depth, 0, 0)
 	update_candidate_points(t_block_x, t_block_y, t_block_z, block)
-
+	if camera_autoscroll_enabled:
+		var new_camera_height = GlobalData.get_height() + max(GlobalData.container_depth, GlobalData.container_width)/2
+		if new_camera_height > camera_min_height:
+			$Camera3D.position.y = new_camera_height
 func check_for_overlaps(i, best_point, block):
 	var overlap = false
 	var heighest_intersecting_block_height = best_point.y
@@ -217,7 +224,7 @@ func update_candidate_points(t_block_x: CandidatePoint, t_block_y: CandidatePoin
 				if max_val > t_best_z_max:
 					t_best_z_max = max_val
 					t_best_z = t
-		if t.x <= t_block_y.x and t.z <= t_block_y.z and t.y <= t_block_y.y and t.width == 0 and t.depth == 0:
+		if t.x <= t_block_y.x and t.z <= t_block_y.z and t.y <= t_block_y.y:
 			var max_val = t.y
 			if max_val > t_best_y_max:
 				t_best_y_max = max_val

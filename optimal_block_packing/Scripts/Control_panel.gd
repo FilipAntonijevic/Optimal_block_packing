@@ -104,6 +104,7 @@ func _on_block_max_height_line_edit_text_submitted(new_text: String) -> void:
 	if parsed < block_min_height:
 		parsed = block_min_height
 	block_max_height = parsed
+	GlobalData.max_block_height = block_max_height
 	$Block_max_height_line_edit.text = str(block_max_height)
 
 func _on_number_of_blocks_line_edit_text_submitted(new_text: String) -> void:
