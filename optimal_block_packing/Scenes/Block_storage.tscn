@@ -1,4 +1,6 @@
-[gd_scene format=3 uid="uid://c0ii8ntaoejcr"]
+[gd_scene load_steps=2 format=3 uid="uid://c0ii8ntaoejcr"]
+
+[ext_resource type="Script" path="res://Scripts/Block_storage.gd" id="1_3ne5o"]
 
 [node name="BlockStorage" type="Control"]
 layout_mode = 3
@@ -8,6 +10,7 @@ anchor_bottom = 1.0
 offset_right = -902.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_3ne5o")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 0
@@ -22,3 +25,13 @@ offset_top = 13.0
 offset_right = 191.0
 offset_bottom = 36.0
 text = "Gnerated blocks:"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 2
+offset_left = 4.0
+offset_top = 47.0
+offset_right = 246.0
+offset_bottom = 648.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2

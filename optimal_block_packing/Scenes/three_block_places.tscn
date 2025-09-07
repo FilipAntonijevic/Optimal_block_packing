@@ -1,0 +1,67 @@
+[gd_scene load_steps=3 format=3 uid="uid://htjksvril2et"]
+
+[ext_resource type="Script" path="res://Scripts/Three_block_places.gd" id="1_wos1n"]
+[ext_resource type="PackedScene" uid="uid://btvonnbl8om6m" path="res://Scenes/Block_preview.tscn" id="2_4uh6l"]
+
+[node name="ThreeBlockPlaces" type="Control"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 3
+anchors_preset = 0
+offset_bottom = 102.0
+script = ExtResource("1_wos1n")
+
+[node name="SubViewportContainer1" type="SubViewportContainer" parent="."]
+custom_minimum_size = Vector2(80, 120)
+layout_mode = 2
+offset_right = 80.0
+offset_bottom = 120.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer1"]
+handle_input_locally = false
+size = Vector2i(80, 120)
+render_target_update_mode = 4
+
+[node name="Block_preview" parent="SubViewportContainer1/SubViewport" instance=ExtResource("2_4uh6l")]
+id = null
+width = null
+depth = null
+height = null
+
+[node name="SubViewportContainer2" type="SubViewportContainer" parent="."]
+custom_minimum_size = Vector2(80, 120)
+layout_mode = 2
+offset_left = 80.0
+offset_right = 160.0
+offset_bottom = 80.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer2"]
+handle_input_locally = false
+size = Vector2i(80, 120)
+render_target_update_mode = 4
+
+[node name="Block_preview" parent="SubViewportContainer2/SubViewport" instance=ExtResource("2_4uh6l")]
+id = null
+width = null
+depth = null
+height = null
+
+[node name="SubViewportContainer3" type="SubViewportContainer" parent="."]
+custom_minimum_size = Vector2(80, 120)
+layout_mode = 2
+offset_left = 160.0
+offset_right = 240.0
+offset_bottom = 80.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer3"]
+handle_input_locally = false
+size = Vector2i(80, 120)
+render_target_update_mode = 4
+
+[node name="Block_preview" parent="SubViewportContainer3/SubViewport" instance=ExtResource("2_4uh6l")]
+id = null
+width = null
+depth = null
+height = null

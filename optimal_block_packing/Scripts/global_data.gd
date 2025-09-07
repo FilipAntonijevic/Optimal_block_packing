@@ -6,6 +6,9 @@ extends Node
 @export var min_block_width: float = 0.1
 @export var min_block_depth: float = 0.1
 @export var max_block_height: float = 5
+@export var max_block_width: float  = 1
+@export var max_block_depth: float  = 1
+
 
 @export var blocks: Array = []
 @export var candidate_points: Array[CandidatePoint] = []  # koristi Resource klasu

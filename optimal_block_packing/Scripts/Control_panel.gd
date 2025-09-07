@@ -15,6 +15,7 @@ extends Node
 
 signal draw_container_signal()
 signal add_blocks_signal()
+signal show_blocks_in_storage()
 
 func _ready() -> void:
 	pass 
@@ -31,6 +32,7 @@ func _on_container_width_line_edit_text_submitted(new_text: String) -> void:
 		block_min_width = container_width
 		$Block_min_width_line_edit.text = str(block_min_width)
 	GlobalData.container_width = container_width
+	GlobalData.max_block_width = block_max_width
 	emit_signal("draw_container_signal")
 func _on_container_depth_line_edit_text_submitted(new_text: String) -> void:
 	if new_text.to_float() < 1:
@@ -44,6 +46,7 @@ func _on_container_depth_line_edit_text_submitted(new_text: String) -> void:
 		block_min_depth = container_depth
 		$Block_max_depth_line_edit.text = str(block_min_depth)
 	GlobalData.container_depth = container_depth
+	GlobalData.max_block_depth = block_max_depth
 	emit_signal("draw_container_signal")
 	
 func _on_block_min_width_line_edit_text_submitted(new_text: String) -> void:
@@ -66,6 +69,7 @@ func _on_block_max_width_line_edit_text_submitted(new_text: String) -> void:
 	if parsed < block_min_width:
 		parsed = block_min_width
 	block_max_width = parsed
+	GlobalData.max_block_width = block_max_width
 	$Block_max_width_line_edit.text = str(parsed)
 
 func _on_block_min_depth_line_edit_text_submitted(new_text: String) -> void:
@@ -77,6 +81,7 @@ func _on_block_min_depth_line_edit_text_submitted(new_text: String) -> void:
 	if parsed > block_max_depth:
 		parsed = block_max_depth
 	block_min_depth = parsed
+	GlobalData.max_block_depth = block_max_depth
 	$Block_min_depth_line_edit.text = str(parsed)
 
 func _on_block_max_depth_line_edit_text_submitted(new_text: String) -> void:
@@ -127,6 +132,9 @@ func _on_generate_blocks_button_pressed() -> void:
 	
 	for block in GlobalData.blocks:
 		print("Block id: " + str(block.id) + "\n")
+	emit_signal("show_blocks_in_storage")
+
+
 func _on_calculate_best_block_order_button_pressed() -> void:
 	emit_signal("add_blocks_signal")
 
