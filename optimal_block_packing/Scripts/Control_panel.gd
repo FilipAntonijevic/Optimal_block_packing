@@ -119,7 +119,6 @@ func _on_number_of_blocks_line_edit_text_submitted(new_text: String) -> void:
 	number_of_blocks = parsed
 	$Number_of_blocks_line_edit.text = str(number_of_blocks)
 
-
 func _on_generate_blocks_button_pressed() -> void:
 	GlobalData.blocks.clear()
 	for i in range(number_of_blocks):

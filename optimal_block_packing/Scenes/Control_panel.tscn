@@ -16,7 +16,7 @@ script = ExtResource("1_c71k3")
 layout_mode = 0
 offset_right = 250.0
 offset_bottom = 649.0
-color = Color(0.20871, 0.20871, 0.20871, 1)
+color = Color(0.0745098, 0.0745098, 0.0745098, 1)
 
 [node name="2D_button" type="Button" parent="."]
 layout_mode = 0
