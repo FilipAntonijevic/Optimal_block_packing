@@ -22,9 +22,8 @@ func draw():
 	var d = 50 * depth / multiplier
 	var h = 50 * height / multiplier
 
-	var offset = Vector2(80/2, 120/2)  # centar Node2D
-
-	# Gornje lice - prvo
+	var offset = Vector2(80/2, 120/2)  
+	
 	var top = Polygon2D.new()
 	top.polygon = [
 		Vector2(0,0),
@@ -36,7 +35,6 @@ func draw():
 	top.position = offset - Vector2(w/2, h/2)
 	polygon.add_child(top)
 
-	# Bočno lice - drugo
 	var side = Polygon2D.new()
 	side.polygon = [
 		Vector2(0,0),
@@ -48,7 +46,6 @@ func draw():
 	side.position = offset + Vector2(w/2, h/2)
 	polygon.add_child(side)
 
-	# Prednje lice - poslednje
 	var front = Polygon2D.new()
 	front.polygon = [
 		Vector2(0,0),
@@ -61,3 +58,14 @@ func draw():
 	polygon.add_child(front)
 	polygon.position.y = 10
 	polygon.position.x -= 10
+
+func highlight() -> void:
+	for child in polygon.get_children():
+		if child is Polygon2D:
+			var base_color = child.color
+			child.color = Color(
+				base_color.r * 0.6,
+				base_color.g * 1.3,
+				base_color.b * 0.6,
+				1.0
+			).clamp()

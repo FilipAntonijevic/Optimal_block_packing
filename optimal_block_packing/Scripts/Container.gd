@@ -14,6 +14,8 @@ var camera_distance: float
 var rotating := false
 var last_mouse_pos: Vector2
 
+signal highlight_this_block_in_storage
+
 func _ready() -> void:
 	draw_container()
 	camera_distance = max(GlobalData.container_width, GlobalData.container_depth)
@@ -143,9 +145,8 @@ func add_block(block : Block) -> void:
 			var end_pos   = Vector3(start_pos.x, new_camera_height, start_pos.z)
 			var tween := create_tween()
 			tween.tween_property($Camera3D, "position", end_pos, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-
-			#await tween.finished
-			#$Camera3D.position.y = new_camera_height
+	emit_signal("highlight_this_block_in_storage")
+			
 func check_for_overlaps(i, best_point, block):
 	var overlap = false
 	var heighest_intersecting_block_height = best_point.y

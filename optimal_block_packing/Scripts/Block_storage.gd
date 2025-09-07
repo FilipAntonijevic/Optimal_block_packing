@@ -2,6 +2,8 @@ class_name Block_storage extends Control
 
 @onready var three_blocks_place = preload("res://Scenes/three_block_places.tscn")
 
+var block_number : int = 1
+
 func show_blocks() -> void:
 	for child in $ScrollContainer/VBoxContainer.get_children():
 		child.queue_free()
@@ -23,3 +25,20 @@ func show_blocks() -> void:
 			else:
 				row_instance.get("block_%d" % (j+1)).label.visible = false
 				row_instance.get("block_%d" % (j+1)).polygon.visible = false
+
+func highlight_next_block() -> void:
+	print("POSVETLI OVAJ BLOK: " + str(block_number))
+	var row_index = int((block_number - 1) / 3)
+	var col_index = int((block_number - 1) % 3) + 1 
+
+	var row = $ScrollContainer/VBoxContainer.get_child(row_index)
+	if row == null:
+		return
+	
+	var block_node = row.get("block_%d" % col_index)
+	if block_node != null:
+		block_node.highlight()
+	
+	block_number += 1
+	if block_number - 1 == GlobalData.blocks.size():
+		block_number = 1
