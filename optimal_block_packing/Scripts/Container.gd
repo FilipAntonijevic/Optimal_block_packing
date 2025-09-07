@@ -13,6 +13,7 @@ extends Node3D
 var camera_distance: float
 var rotating := false
 var last_mouse_pos: Vector2
+var animation_duration = 0.4
 
 signal highlight_this_block_in_storage
 
@@ -118,6 +119,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		last_mouse_pos = event.position
 
 func add_blocks() -> void:
+	position_camera()
 	GlobalData.candidate_points.clear()
 	GlobalData.add_candidate_point(0,0,0,0,0)
 
@@ -189,17 +191,16 @@ func find_best_point_and_place_block(block) -> CandidatePoint:
 	mat.albedo_color = Color(0.5, 0.5, 0.5)  
 	mat.roughness = 0.3  
 	mat.metallic = 0.0  
-	mat.specular = 0.2 
 	mesh_instance.material_override = mat
 
 
 	if GlobalData.animations_bool:
-		var start_pos = Vector3(best_point.x, best_point.y, best_point.z) + Vector3(block.width/2, block.height/2, block.depth/2) + Vector3(0, 20, 0)
+		var start_pos = Vector3(best_point.x, best_point.y, best_point.z) + Vector3(block.width/2, block.height/2, block.depth/2) + Vector3(0, GlobalData.max_block_height*2, 0)
 		var end_pos   = Vector3(best_point.x, best_point.y, best_point.z) + Vector3(block.width/2, block.height/2, block.depth/2)
 		mesh_instance.position = start_pos
 		blocks_node.add_child(mesh_instance) 
 		var tween := create_tween()
-		tween.tween_property(mesh_instance, "position", end_pos, 0.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tween.tween_property(mesh_instance, "position", end_pos, animation_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		await tween.finished
 	else:
 		mesh_instance.position = Vector3(best_point.x, best_point.y, best_point.z) + Vector3(block.width/2, block.height/2, block.depth/2)

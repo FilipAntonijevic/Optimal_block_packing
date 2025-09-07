@@ -46,6 +46,7 @@ offset_bottom = -151.0
 scale = Vector2(1.109, 1.109)
 
 [node name="Label" type="Label" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 410.0
 offset_top = 19.0
