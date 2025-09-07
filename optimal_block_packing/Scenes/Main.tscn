@@ -1,9 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://cpbtn1vaj550d"]
+[gd_scene load_steps=6 format=3 uid="uid://cpbtn1vaj550d"]
 
 [ext_resource type="Script" path="res://Scripts/Main.gd" id="1_7ufkm"]
 [ext_resource type="PackedScene" uid="uid://ces8862dggcmw" path="res://Scenes/Control_panel.tscn" id="1_16o5s"]
 [ext_resource type="PackedScene" uid="uid://dganlbgu1scp2" path="res://Scenes/Container.tscn" id="1_eyrhx"]
 [ext_resource type="PackedScene" uid="uid://c0ii8ntaoejcr" path="res://Scenes/Block_storage.tscn" id="2_1vtf4"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_3o64q"]
+font_size = 28
+font_color = Color(0.359245, 0.710615, 0.372012, 1)
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -40,3 +44,13 @@ offset_left = 1003.0
 offset_right = 53.0
 offset_bottom = -151.0
 scale = Vector2(1.109, 1.109)
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 410.0
+offset_top = 19.0
+offset_right = 862.0
+offset_bottom = 101.0
+text = "Best achieved height: 0m"
+label_settings = SubResource("LabelSettings_3o64q")
+horizontal_alignment = 1

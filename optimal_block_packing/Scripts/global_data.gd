@@ -13,6 +13,7 @@ extends Node
 @export var blocks: Array = []
 @export var candidate_points: Array[CandidatePoint] = []  # koristi Resource klasu
 
+@export var render_visual_storage : bool = true
 @export var animations_bool: bool = true
 @export var package_height: float = 0
 

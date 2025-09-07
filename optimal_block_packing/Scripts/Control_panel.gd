@@ -18,7 +18,16 @@ signal add_blocks_signal()
 signal show_blocks_in_storage()
 
 func _ready() -> void:
-	pass 
+	$Container_width_line_edit.text = str(container_width)
+	$Container_depth_line_edit.text = str(container_depth)
+	$Block_min_width_line_edit.text = str(block_min_width)
+	$Block_max_width_line_edit.text = str(block_max_width)
+	$Block_min_depth_line_edit.text = str(block_min_depth)
+	$Block_max_depth_line_edit.text = str(block_max_depth)
+	$Block_min_height_line_edit.text = str(block_min_height)
+	$Block_max_height_line_edit.text = str(block_max_height)
+	$Number_of_blocks_line_edit.text = str(number_of_blocks)
+
 
 func _on_container_width_line_edit_text_submitted(new_text: String) -> void:
 	if new_text.to_float() < 1:
@@ -121,6 +130,7 @@ func _on_number_of_blocks_line_edit_text_submitted(new_text: String) -> void:
 
 func _on_generate_blocks_button_pressed() -> void:
 	GlobalData.blocks.clear()
+	collect_all_inputs()
 	for i in range(number_of_blocks):
 		var block = Block.new()
 		block.id = i + 1
@@ -128,9 +138,10 @@ func _on_generate_blocks_button_pressed() -> void:
 		block.depth = randf_range(block_min_depth, block_max_depth)
 		block.height = randf_range(block_min_height, block_max_height)
 		GlobalData.blocks.append(block)
-	
-	for block in GlobalData.blocks:
-		print("Block id: " + str(block.id) + "\n")
+	if GlobalData.blocks.size() > 2000:
+		GlobalData.render_visual_storage = false
+	else:
+		GlobalData.render_visual_storage = true
 	emit_signal("show_blocks_in_storage")
 
 
@@ -140,3 +151,34 @@ func _on_calculate_best_block_order_button_pressed() -> void:
 
 func _on_animation_check_button_toggled(toggled_on: bool) -> void:
 	GlobalData.animations_bool = toggled_on
+
+func collect_all_inputs() -> void:
+	container_width = max(1.0, $Container_width_line_edit.text.to_float())
+	container_depth = max(1.0, $Container_depth_line_edit.text.to_float())
+	GlobalData.container_width = container_width
+	GlobalData.container_depth = container_depth
+
+	block_min_width = clamp($Block_min_width_line_edit.text.to_float(), 0.01, container_width)
+	block_max_width = clamp($Block_max_width_line_edit.text.to_float(), block_min_width, container_width)
+	block_min_depth = clamp($Block_min_depth_line_edit.text.to_float(), 0.01, container_depth)
+	block_max_depth = clamp($Block_max_depth_line_edit.text.to_float(), block_min_depth, container_depth)
+	block_min_height = clamp($Block_min_height_line_edit.text.to_float(), 0.01, block_max_height)
+	block_max_height = max(block_min_height, $Block_max_height_line_edit.text.to_float())
+
+	number_of_blocks = max(1, int($Number_of_blocks_line_edit.text.to_int()))
+
+	GlobalData.min_block_width = block_min_width
+	GlobalData.min_block_depth = block_min_depth
+	GlobalData.max_block_width = block_max_width
+	GlobalData.max_block_depth = block_max_depth
+	GlobalData.max_block_height = block_max_height
+	
+	$Container_width_line_edit.text = str(container_width)
+	$Container_depth_line_edit.text = str(container_depth)
+	$Block_min_width_line_edit.text = str(block_min_width)
+	$Block_max_width_line_edit.text = str(block_max_width)
+	$Block_min_depth_line_edit.text = str(block_min_depth)
+	$Block_max_depth_line_edit.text = str(block_max_depth)
+	$Block_min_height_line_edit.text = str(block_min_height)
+	$Block_max_height_line_edit.text = str(block_max_height)
+	$Number_of_blocks_line_edit.text = str(number_of_blocks)

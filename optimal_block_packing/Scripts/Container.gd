@@ -3,7 +3,7 @@ extends Node3D
 @onready var blocks_node = $Container_node/Blocks
 @onready var container_node = $Container_node
 
-@export var height: float = 1000
+@export var height: float = 10000000000000000
 @export var color: Color = Color(1, 1, 1)
 @export var zoom_speed: float = GlobalData.max_block_height * 0.3
 @export var camera_min_height: float = -10
@@ -185,9 +185,13 @@ func find_best_point_and_place_block(block) -> CandidatePoint:
 	mesh_instance.mesh = box
 
 	var mat = StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
-	mat.albedo_color = Color(0.5, 0.5, 0.5)
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL  
+	mat.albedo_color = Color(0.5, 0.5, 0.5)  
+	mat.roughness = 0.3  
+	mat.metallic = 0.0  
+	mat.specular = 0.2 
 	mesh_instance.material_override = mat
+
 
 	if GlobalData.animations_bool:
 		var start_pos = Vector3(best_point.x, best_point.y, best_point.z) + Vector3(block.width/2, block.height/2, block.depth/2) + Vector3(0, 20, 0)

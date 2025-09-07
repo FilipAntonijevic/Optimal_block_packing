@@ -40,7 +40,7 @@ offset_left = 167.0
 offset_top = 312.0
 offset_right = 234.063
 offset_bottom = 343.0
-placeholder_text = "5"
+placeholder_text = "10"
 
 [node name="Block_max_height_line_edit" type="LineEdit" parent="."]
 layout_mode = 0
@@ -48,7 +48,7 @@ offset_left = 165.0
 offset_top = 268.0
 offset_right = 232.063
 offset_bottom = 299.0
-placeholder_text = "5"
+placeholder_text = "1"
 
 [node name="Block_min_height_line_edit" type="LineEdit" parent="."]
 layout_mode = 0

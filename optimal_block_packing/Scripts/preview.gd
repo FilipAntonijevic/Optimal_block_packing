@@ -31,7 +31,7 @@ func draw():
 		Vector2(w+d/2,-d/2),
 		Vector2(d/2,-d/2)
 	]
-	top.color = Color(0.8,0.8,0.8)
+	top.color = Color(0.673,0.583,0.428)
 	top.position = offset - Vector2(w/2, h/2)
 	polygon.add_child(top)
 
@@ -42,7 +42,7 @@ func draw():
 		Vector2(d/2,-h-d/2),
 		Vector2(0,-h)
 	]
-	side.color = Color(0.5,0.5,0.5)
+	side.color = Color(0.473,0.383,0.228)
 	side.position = offset + Vector2(w/2, h/2)
 	polygon.add_child(side)
 
@@ -53,7 +53,7 @@ func draw():
 		Vector2(w,-h),
 		Vector2(0,-h)
 	]
-	front.color = Color(0.6,0.6,0.6)
+	front.color = Color(0.57,0.48,0.32)
 	front.position = offset - Vector2(w/2, -h/2)
 	polygon.add_child(front)
 	polygon.position.y = 10
@@ -65,7 +65,7 @@ func highlight() -> void:
 			var base_color = child.color
 			child.color = Color(
 				base_color.r * 0.6,
-				base_color.g * 1.3,
+				base_color.g * 1.1,
 				base_color.b * 0.6,
 				1.0
 			).clamp()
