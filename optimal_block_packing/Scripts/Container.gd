@@ -5,7 +5,7 @@ extends Node3D
 
 @export var height: float = 1000
 @export var color: Color = Color(1, 1, 1)
-@export var zoom_speed: float = GlobalData.max_block_height * 0.25
+@export var zoom_speed: float = GlobalData.max_block_height * 0.3
 @export var camera_min_height: float = -10
 @export var camera_max_height: float = 1000
 @export var camera_autoscroll_enabled : bool = true
@@ -139,7 +139,13 @@ func add_block(block : Block) -> void:
 	if camera_autoscroll_enabled:
 		var new_camera_height = GlobalData.get_height() + max(GlobalData.container_depth, GlobalData.container_width)/2
 		if new_camera_height > camera_min_height:
-			$Camera3D.position.y = new_camera_height
+			var start_pos = $Camera3D.position
+			var end_pos   = Vector3(start_pos.x, new_camera_height, start_pos.z)
+			var tween := create_tween()
+			tween.tween_property($Camera3D, "position", end_pos, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+			#await tween.finished
+			#$Camera3D.position.y = new_camera_height
 func check_for_overlaps(i, best_point, block):
 	var overlap = false
 	var heighest_intersecting_block_height = best_point.y
