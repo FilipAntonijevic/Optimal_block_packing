@@ -27,15 +27,11 @@ func add_candidate_point(x: float, y: float, z: float, width: float, depth: floa
 	point.z = z
 	point.width = width
 	point.depth = depth
-	
-	var idx = candidate_points.bsearch_custom(point, func(a, b):
-		if a.y != b.y:
-			return a.y < b.y  
-		else:
-			return (a.x + 1) * (a.z + 1) < (b.x + 1) * (b.z + 1) 
-	)
-
-	candidate_points.insert(idx, point)
+	candidate_points.append(point)
 
 func get_height() -> float:
-	return candidate_points.back().y
+	var height = 0
+	for t in candidate_points:
+		if t.y > height:
+			height = t.y
+	return height
