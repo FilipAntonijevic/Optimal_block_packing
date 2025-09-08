@@ -164,22 +164,51 @@ func check_for_overlaps(i, best_point, block):
 func find_best_point_and_place_block(block) -> CandidatePoint:
 	var best_point : CandidatePoint
 	
-	var ii = 0
-	for i in range(GlobalData.candidate_points.size()):
-		var t: CandidatePoint = GlobalData.candidate_points[i]
-		if t.x + block.width <= GlobalData.container_width and t.z + block.depth <= GlobalData.container_depth:
-			best_point = t
-			ii = i
-			break
-	while(true):
-		var result = check_for_overlaps(ii, best_point, block)
-		var overlap = result[0]
-		var max_y = result[1]
+	if false:
+		var ii = 0
+		for i in range(GlobalData.candidate_points.size()):
+			var t: CandidatePoint = GlobalData.candidate_points[i]
+			if t.x + block.width <= GlobalData.container_width and t.z + block.depth <= GlobalData.container_depth:
+				best_point = t
+				ii = i
+				break
+		while(true):
+			var result = check_for_overlaps(ii, best_point, block)
+			var overlap = result[0]
+			var max_y = result[1]
+			
+			if !overlap:
+				break
+			else:
+				best_point.y = max_y
 		
-		if !overlap:
-			break
-		else:
-			best_point.y = max_y
+	else:
+		var candidate_best_points : Array[CandidatePoint] = []
+		
+		for i in range(GlobalData.candidate_points.size()):
+			var t: CandidatePoint = GlobalData.candidate_points[i]
+			if t.x + block.width <= GlobalData.container_width and t.z + block.depth <= GlobalData.container_depth:
+				var candidate_point = CandidatePoint.new(t.x, t.y, t.z)
+				while(true):
+					var result = check_for_overlaps(i, candidate_point, block)
+					var overlap = result[0]
+					var max_y = result[1]
+					
+					if !overlap:
+						candidate_best_points.append(candidate_point)
+						break
+					else:
+						candidate_point.y = max_y
+		
+		candidate_best_points.sort_custom(func(a: CandidatePoint, b: CandidatePoint) -> bool:
+			if a.y != b.y:
+				return a.y < b.y
+			else:
+				return (a.x + 1) * (a.z + 1) < (b.x + 1) * (b.z + 1)
+		)
+
+		best_point = candidate_best_points[0]
+
 
 	var mesh_instance = MeshInstance3D.new()
 	var box = BoxMesh.new()
