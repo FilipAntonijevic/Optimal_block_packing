@@ -121,7 +121,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func add_blocks() -> void:
 	position_camera()
 	GlobalData.candidate_points.clear()
-	GlobalData.add_candidate_point(0,0,0,0,0)
+	GlobalData.overlap_control_points.clear()
+	GlobalData.add_candidate_point(0,0,0)
 
 	for block in blocks_node.get_children():
 		block.queue_free()
@@ -136,10 +137,11 @@ func add_blocks() -> void:
 
 func add_block(block : Block) -> void:
 	var best_point: CandidatePoint = await find_best_point_and_place_block(block)
-	var t_block_x: CandidatePoint = CandidatePoint.new(best_point.x + block.width, best_point.y, best_point.z, 0, 0)
-	var t_block_y: CandidatePoint = CandidatePoint.new(best_point.x , best_point.y  + block.height, best_point.z, 0, 0)
-	var t_block_z: CandidatePoint = CandidatePoint.new(best_point.x , best_point.y , best_point.z + block.depth, 0, 0)
+	var t_block_x: CandidatePoint = CandidatePoint.new(best_point.x + block.width, best_point.y, best_point.z)
+	var t_block_y: CandidatePoint = CandidatePoint.new(best_point.x , best_point.y  + block.height, best_point.z)
+	var t_block_z: CandidatePoint = CandidatePoint.new(best_point.x , best_point.y , best_point.z + block.depth)
 	update_candidate_points(t_block_x, t_block_y, t_block_z, block)
+	update_overlap_control_points()
 	if camera_autoscroll_enabled:
 		var new_camera_height = GlobalData.get_height() + max(GlobalData.container_depth, GlobalData.container_width)/2
 		if new_camera_height > camera_min_height:
@@ -148,46 +150,40 @@ func add_block(block : Block) -> void:
 			var tween := create_tween()
 			tween.tween_property($Camera3D, "position", end_pos, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	emit_signal("highlight_this_block_in_storage")
-			
-func check_for_overlaps(i, best_point, block):
-	var overlap = false
-	var heighest_intersecting_block_height = best_point.y
-	for t in GlobalData.candidate_points:
-		if t.y > best_point.y and best_point.overlaps(t, block.width, block.depth):
-			if heighest_intersecting_block_height < t.y:
-				heighest_intersecting_block_height = t.y
-				overlap = true
 
-	return [overlap, heighest_intersecting_block_height]
+func update_overlap_control_points() -> void:
+	for t in GlobalData.overlap_control_points:
+		if t.y < GlobalData.lowest_candidate_point_height:
+			GlobalData.overlap_control_points.erase(t)
+			
+func check_for_overlaps(best_point, block):
+	var overlap = false
+	var max_y = best_point.y
+	for t in GlobalData.overlap_control_points:
+		if t.y > best_point.y and t.overlaps(best_point, block.width, block.depth):
+			max_y = t.y
+			overlap = true
+			break
+			
+	return [overlap, max_y]
 	
 func find_best_point_and_place_block(block) -> CandidatePoint:
 	var best_point : CandidatePoint
 	
-	var candidate_best_points : Array[CandidatePoint] = []
-	
-	for i in range(GlobalData.candidate_points.size()):
-		var t: CandidatePoint = GlobalData.candidate_points[i]
+	for t in GlobalData.candidate_points:
 		if t.x + block.width <= GlobalData.container_width and t.z + block.depth <= GlobalData.container_depth:
-			var candidate_point = CandidatePoint.new(t.x, t.y, t.z)
-			while(true):
-				var result = check_for_overlaps(i, candidate_point, block)
-				var overlap = result[0]
-				var max_y = result[1]
+			var possible_best_point = CandidatePoint.new(t.x, t.y, t.z)
+			while true:
+				var result = check_for_overlaps(possible_best_point, block)
+				var overlap : bool = result[0]
+				var max_y : float  = result[1]
 				
 				if !overlap:
-					candidate_best_points.append(candidate_point)
+					if best_point == null or possible_best_point.y < best_point.y or (possible_best_point.y == best_point.y and (possible_best_point.x + 1) * (possible_best_point.z + 1) < (best_point.x + 1) * (best_point.z + 1)):
+						best_point = possible_best_point
 					break
 				else:
-					candidate_point.y = max_y
-	
-	candidate_best_points.sort_custom(func(a: CandidatePoint, b: CandidatePoint) -> bool:
-		if a.y != b.y:
-			return a.y < b.y
-		else:
-			return (a.x + 1) * (a.z + 1) < (b.x + 1) * (b.z + 1)
-	)
-	
-	best_point = candidate_best_points[0]
+					possible_best_point.y = max_y
 	
 	var mesh_instance = MeshInstance3D.new()
 	var box = BoxMesh.new()
@@ -230,16 +226,18 @@ func update_candidate_points(t_block_x: CandidatePoint, t_block_y: CandidatePoin
 		illegal_points.append(t_block_x)
 	if t_block_z.z + GlobalData.min_block_depth > GlobalData.container_depth:
 		illegal_points.append(t_block_z)
-
+	
+	#updating lowest candidate point height
+	GlobalData.lowest_candidate_point_height = INF
 	for t in GlobalData.candidate_points:
 		if t_block_x not in illegal_points:
-			if t.x <= t_block_x.x and t.z <= t_block_x.z and t.y <= t_block_x.y and t.width == 0 and t.depth == 0:
+			if t.x <= t_block_x.x and t.z <= t_block_x.z and t.y <= t_block_x.y:
 				var max_val = (t.x + 1) * (t.z + 1)
 				if max_val > t_best_x_max:
 					t_best_x_max = max_val
 					t_best_x = t
 		if t_block_z not in illegal_points:
-			if t.x <= t_block_z.x and t.z <= t_block_z.z and t.y <= t_block_z.y and t.width == 0 and t.depth == 0:
+			if t.x <= t_block_z.x and t.z <= t_block_z.z and t.y <= t_block_z.y:
 				var max_val = (t.x + 1) * (t.z + 1)
 				if max_val > t_best_z_max:
 					t_best_z_max = max_val
@@ -251,17 +249,17 @@ func update_candidate_points(t_block_x: CandidatePoint, t_block_y: CandidatePoin
 				t_best_y = t
 		if t.x <= t_block_x.x and t.x >= t_block_z.x and t.z <= t_block_z.z and t.z >= t_block_x.z and t.y <= t_block_x.y:
 			illegal_points.append(t)
+		else:
+			if t.y < GlobalData.lowest_candidate_point_height:
+				GlobalData.lowest_candidate_point_height = t.y
 
 	for t in illegal_points:
 		GlobalData.candidate_points.erase(t)
 
 	if t_best_x != null:
-		GlobalData.add_candidate_point(t_block_x.x, t_best_x.y, t_block_x.z, 0, 0)
+		GlobalData.add_candidate_point(t_block_x.x, t_best_x.y, t_block_x.z)
 	if t_best_z != null:
-		GlobalData.add_candidate_point(t_block_z.x, t_best_z.y, t_block_z.z, 0, 0)
-	GlobalData.add_candidate_point(t_best_y.x, t_block_y.y, t_best_y.z, 0,0)
-	#we only add these points for calculating overlaping blocks, they will never be used as an actualy candidate points due to ordering of points.
-	GlobalData.add_candidate_point(t_block_y.x, t_block_y.y, t_block_y.z, block.width, block.depth)
-	GlobalData.add_candidate_point(t_block_y.x + block.width, t_block_y.y, t_block_y.z, -block.width, block.depth)
-	GlobalData.add_candidate_point(t_block_y.x, t_block_y.y, t_block_y.z + block.depth, block.width, -block.depth)
-	GlobalData.add_candidate_point(t_block_y.x + block.width, t_block_y.y, t_block_y.z + block.depth, -block.width, -block.depth)
+		GlobalData.add_candidate_point(t_block_z.x, t_best_z.y, t_block_z.z)
+	GlobalData.add_candidate_point(t_best_y.x, t_block_y.y, t_best_y.z)
+	#adding overlap control points
+	GlobalData.add_overlap_control_point_point(t_block_y.x, t_block_y.y, t_block_y.z, block.width, block.depth)

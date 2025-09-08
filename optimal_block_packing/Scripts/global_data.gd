@@ -11,22 +11,31 @@ extends Node
 
 
 @export var blocks: Array = []
-@export var candidate_points: Array[CandidatePoint] = []  # koristi Resource klasu
+@export var candidate_points: Array[CandidatePoint] = [] 
+@export var overlap_control_points: Array[OverlapControlPoint] = []
+@export var lowest_candidate_point_height : float = 0
 
 @export var render_visual_storage : bool = true
 @export var animations_bool: bool = true
 @export var package_height: float = 0
 
 func _ready() -> void:
-	add_candidate_point(0, 0, 0, 0, 0)
+	add_candidate_point(0, 0, 0)
 
-func add_candidate_point(x: float, y: float, z: float, width: float, depth: float) -> void:
-	var point = CandidatePoint.new()
+func add_overlap_control_point_point(x: float, y: float, z: float, width: float, depth: float) -> void:
+	var point = OverlapControlPoint.new()
 	point.x = x
 	point.y = y
 	point.z = z
 	point.width = width
 	point.depth = depth
+	overlap_control_points.append(point)
+	
+func add_candidate_point(x: float, y: float, z: float) -> void:
+	var point = CandidatePoint.new()
+	point.x = x
+	point.y = y
+	point.z = z
 	candidate_points.append(point)
 
 func get_height() -> float:
