@@ -28,15 +28,12 @@ func calculate_best_height() -> void:
 	print("Najbolja visina: ", best_height)
 	print("Najbolja permutacija: ", best_permutation)
 
-	# postavi blokove na najbolju permutaciju
 	var new_order := []
 	for id in best_permutation:
 		new_order.append(block_ids[id])
 	GlobalData.blocks = new_order.duplicate()
 
 	GlobalData.animations_bool = animations_bool
-
-
 	
 func test_permutations(ids: Array, block_ids: Dictionary) -> void:
 	var all_perms = permutations(ids) 
@@ -49,13 +46,14 @@ func test_permutations(ids: Array, block_ids: Dictionary) -> void:
 		
 		var height = get_parent().calculate_height()
 		
-		print("Permutacija ", i+1, "/", all_perms.size(), ": visina = ", height)
+		#print("Permutacija ", i+1, "/", all_perms.size(), ": visina = ", height)
 
 		if height < best_height:
 			best_height = height
 			best_permutation.clear()
 			best_permutation.append_array(perm)
-
+	print(best_permutation)
+	print('Height' + str(best_height))
 
 func permutations(arr: Array) -> Array:
 	if arr.size() <= 1:
