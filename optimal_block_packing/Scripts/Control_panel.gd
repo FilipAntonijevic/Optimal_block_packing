@@ -187,6 +187,8 @@ func collect_all_inputs() -> void:
 
 func _on_a_2d_button_pressed() -> void:
 	GlobalData.view_2d = true
+	GlobalData.min_block_depth = GlobalData.max_block_depth
+	$Block_min_depth_line_edit.text = str(GlobalData.min_block_depth)
 	emit_signal("switch_to_2d_view")
 	emit_signal("maybe_show_blocks_in_storage")
 
