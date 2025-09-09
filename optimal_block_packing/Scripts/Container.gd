@@ -7,11 +7,12 @@ extends Node3D
 @export var color: Color = Color(1, 1, 1)
 @export var zoom_speed: float = GlobalData.max_block_height * 0.3
 @export var camera_min_height: float = -10
-@export var camera_max_height: float = 1000
+@export var camera_max_height: float = INF
 @export var camera_autoscroll_enabled : bool = true
 
-var camera_distance: float
-var rotating := false
+var camera_base_3d_position
+var camera_base_2d_position
+var rotating : bool = false
 var last_mouse_pos: Vector2
 var animation_duration = 0.4
 
@@ -19,8 +20,6 @@ signal highlight_this_block_in_storage
 
 func _ready() -> void:
 	draw_container()
-	camera_distance = max(GlobalData.container_width, GlobalData.container_depth)
-	position_camera()
 	
 func draw_container() -> void:
 	for child in container_node.get_children():
@@ -73,51 +72,11 @@ func draw_container() -> void:
 	position_camera()
 
 func position_camera() -> void: 
-	var camera = $Camera3D 
-	var target = Vector3(GlobalData.container_width / 2.0, 0, GlobalData.container_depth / 2.0) 
-	var distance = max(GlobalData.container_width, GlobalData.container_depth)
-	camera.position = target + Vector3(distance, distance, distance) 
-	camera.look_at(target, Vector3.UP) 
-	camera.position.y += distance
-	camera_min_height = camera.position.y
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed:
-				rotating = true
-				last_mouse_pos = event.position
-			else:
-				rotating = false
-
-	if event is InputEventMouseButton and event.pressed:
-		var camera = $Camera3D
-		if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			camera_autoscroll_enabled = false
-			camera.position.y = max(camera_min_height, camera.position.y - zoom_speed)
-		elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			camera.position.y = min(max(GlobalData.container_width ,GlobalData.container_depth) * 2 + GlobalData.get_height(), camera.position.y + zoom_speed)
-			if camera.position.y >= GlobalData.get_height():
-				camera_autoscroll_enabled = true
-				
-	if event is InputEventMouseMotion and rotating:
-		var delta = event.position - last_mouse_pos
-		var angle = deg_to_rad(-delta.x * 0.3)
-
-		var pivot_local = Vector3(GlobalData.container_width/2.0, 0, GlobalData.container_depth/2.0)
-
-		var pivot_global = container_node.to_global(pivot_local)
-
-		var T = container_node.global_transform
-
-		var translate_to_origin = Transform3D(Basis(), -pivot_global)
-		var rotate = Transform3D(Basis(Vector3.UP, angle), Vector3.ZERO)
-		var translate_back = Transform3D(Basis(), pivot_global)
-
-		container_node.global_transform = translate_back * rotate * translate_to_origin * T
-
-		last_mouse_pos = event.position
-
+	if GlobalData.view_2d:
+		setup_2d_view()
+	else:
+		setup_3d_view()
+	
 func add_blocks() -> void:
 	position_camera()
 	GlobalData.candidate_points.clear()
@@ -142,14 +101,25 @@ func add_block(block : Block) -> void:
 	var t_block_z: CandidatePoint = CandidatePoint.new(best_point.x , best_point.y , best_point.z + block.depth)
 	update_candidate_points(t_block_x, t_block_y, t_block_z, block)
 	update_overlap_control_points()
-	if camera_autoscroll_enabled:
-		var new_camera_height = GlobalData.get_height() + max(GlobalData.container_depth, GlobalData.container_width)/2
-		if new_camera_height > camera_min_height:
-			var start_pos = $Camera3D.position
-			var end_pos   = Vector3(start_pos.x, new_camera_height, start_pos.z)
-			var tween := create_tween()
-			tween.tween_property($Camera3D, "position", end_pos, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	autoscroll_camera()
 	emit_signal("highlight_this_block_in_storage")
+
+func autoscroll_camera() -> void:
+	if camera_autoscroll_enabled:
+		if GlobalData.view_2d:
+			var new_camera_y = GlobalData.get_height() + max(GlobalData.container_depth, GlobalData.container_width) / 2
+			if new_camera_y > camera_min_height:
+				var start_pos = $Camera3D.position
+				var end_pos = Vector3(start_pos.x, new_camera_y, start_pos.z)
+				var tween := create_tween()
+				tween.tween_property($Camera3D, "position", end_pos, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		else:
+			var new_camera_height = GlobalData.get_height() + max(GlobalData.container_depth, GlobalData.container_width) / 2
+			if new_camera_height > camera_min_height:
+				var start_pos = $Camera3D.position
+				var end_pos = Vector3(start_pos.x, new_camera_height, start_pos.z)
+				var tween := create_tween()
+				tween.tween_property($Camera3D, "position", end_pos, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func update_overlap_control_points() -> void:
 	for t in GlobalData.overlap_control_points:
@@ -196,7 +166,6 @@ func find_best_point_and_place_block(block) -> CandidatePoint:
 	mat.roughness = 0.3  
 	mat.metallic = 0.0  
 	mesh_instance.material_override = mat
-
 
 	if GlobalData.animations_bool:
 		var start_pos = Vector3(best_point.x, best_point.y, best_point.z) + Vector3(block.width/2, block.height/2, block.depth/2) + Vector3(0, GlobalData.max_block_height*2, 0)
@@ -263,3 +232,83 @@ func update_candidate_points(t_block_x: CandidatePoint, t_block_y: CandidatePoin
 	GlobalData.add_candidate_point(t_best_y.x, t_block_y.y, t_best_y.z)
 	#adding overlap control points
 	GlobalData.add_overlap_control_point_point(t_block_y.x, t_block_y.y, t_block_y.z, block.width, block.depth)
+
+func setup_2d_view() -> void:
+	container_node.global_transform = Transform3D.IDENTITY
+	var camera = $Camera3D
+
+	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+	camera.near = 0.1
+	camera.far = 20000
+	
+	var target = Vector3(GlobalData.container_width / 2.0, 0, GlobalData.container_width / 2.0)
+	var distance = GlobalData.container_width * 100.0
+	camera.size = GlobalData.container_width * 2.0
+	var base_position = Vector3(target.x, target.y, target.z + distance)
+	var desired_y = 0.75 * GlobalData.container_width
+	camera.position = base_position
+	camera.look_at(target, Vector3.UP)
+	camera.position.y = base_position.y + desired_y 
+
+	camera_min_height += camera.position.y
+
+func setup_3d_view() -> void:
+	container_node.global_transform = Transform3D.IDENTITY
+
+	var camera = $Camera3D 
+	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+	var target = Vector3(GlobalData.container_width / 2.0, 0, GlobalData.container_depth / 2.0) 
+	var distance = max(GlobalData.container_width, GlobalData.container_depth)
+	var base_position = target + Vector3(distance, distance, distance)
+	var desired_y = distance
+	camera.position = base_position
+	camera.look_at(target, Vector3.UP)
+	camera.position.y = base_position.y + desired_y
+	camera_min_height = camera.position.y
+	
+func _unhandled_input(event: InputEvent) -> void:
+	if GlobalData.view_2d == false:
+		if event is InputEventMouseButton:
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				if event.pressed:
+					rotating = true
+					last_mouse_pos = event.position
+				else:
+					rotating = false
+					
+		if event is InputEventMouseMotion and rotating:
+			var delta = event.position - last_mouse_pos
+			var angle = deg_to_rad(-delta.x * 0.3)
+
+			var pivot_local = Vector3(GlobalData.container_width/2.0, 0, GlobalData.container_depth/2.0)
+
+			var pivot_global = container_node.to_global(pivot_local)
+
+			var T = container_node.global_transform
+
+			var translate_to_origin = Transform3D(Basis(), -pivot_global)
+			var rotate = Transform3D(Basis(Vector3.UP, angle), Vector3.ZERO)
+			var translate_back = Transform3D(Basis(), pivot_global)
+
+			container_node.global_transform = translate_back * rotate * translate_to_origin * T
+			last_mouse_pos = event.position
+			
+		if event is InputEventMouseButton and event.pressed:
+			var camera = $Camera3D
+			if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				camera_autoscroll_enabled = false
+				camera.position.y = max(camera_min_height, camera.position.y - zoom_speed)
+			elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				camera.position.y = min(max(GlobalData.container_width ,GlobalData.container_depth) * 2 + GlobalData.get_height(), camera.position.y + zoom_speed)
+				if camera.position.y >= GlobalData.get_height():
+					camera_autoscroll_enabled = true
+	else:
+		if event is InputEventMouseButton and event.pressed:
+			var camera = $Camera3D
+			if event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				camera_autoscroll_enabled = false
+				camera.position.y = max(camera_min_height, camera.position.y - zoom_speed)
+			elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				camera.position.y = min(GlobalData.get_height() + 0.75 * GlobalData.container_width, camera.position.y + zoom_speed)
+				if camera.position.y >= GlobalData.get_height():
+					camera_autoscroll_enabled = true

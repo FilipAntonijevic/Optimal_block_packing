@@ -18,6 +18,7 @@ extends Node
 @export var render_visual_storage : bool = true
 @export var animations_bool: bool = true
 @export var package_height: float = 0
+@export var view_2d : bool = false
 
 func _ready() -> void:
 	add_candidate_point(0, 0, 0)

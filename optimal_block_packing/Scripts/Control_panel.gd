@@ -16,6 +16,8 @@ extends Node
 signal draw_container_signal()
 signal add_blocks_signal()
 signal show_blocks_in_storage()
+signal switch_to_2d_view()
+signal switch_to_3d_view()
 
 func _ready() -> void:
 	$Container_width_line_edit.text = str(container_width)
@@ -144,7 +146,6 @@ func _on_generate_blocks_button_pressed() -> void:
 		GlobalData.render_visual_storage = true
 	emit_signal("show_blocks_in_storage")
 
-
 func _on_calculate_best_block_order_button_pressed() -> void:
 	emit_signal("add_blocks_signal")
 
@@ -182,3 +183,11 @@ func collect_all_inputs() -> void:
 	$Block_min_height_line_edit.text = str(block_min_height)
 	$Block_max_height_line_edit.text = str(block_max_height)
 	$Number_of_blocks_line_edit.text = str(number_of_blocks)
+
+func _on_a_2d_button_pressed() -> void:
+	GlobalData.view_2d = true
+	emit_signal("switch_to_2d_view")
+
+func _on_a_3d_button_pressed() -> void:
+	GlobalData.view_2d = false
+	emit_signal("switch_to_3d_view")
