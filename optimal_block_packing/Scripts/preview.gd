@@ -17,6 +17,35 @@ func setup_block_preview(_id : int , _width: float, _depth: float, _height: floa
 	draw()
 
 func draw():
+	if GlobalData.view_2d:
+		draw_2d()
+	else:
+		draw_3d()
+
+func draw_2d() -> void:
+	var multiplier  = max(GlobalData.max_block_width,GlobalData.max_block_depth,GlobalData.max_block_height)
+	var w = 50 * width / multiplier
+	var h = 50 * height / multiplier
+	
+	var rect = Polygon2D.new()
+	rect.polygon = [
+		Vector2(0, 0),
+		Vector2(w, 0),
+		Vector2(w, h),
+		Vector2(0, h)
+	]
+	rect.color = Color(0.57, 0.48, 0.32) 
+	rect.position = Vector2(40, 60)  
+	
+	for child in polygon.get_children():
+		child.queue_free()
+	
+	polygon.add_child(rect)
+	polygon.position = Vector2.ZERO 
+	polygon.position.y = -10
+	polygon.position.x -= 10
+	
+func draw_3d() -> void:
 	var multiplier  = max(GlobalData.max_block_width,GlobalData.max_block_depth,GlobalData.max_block_height)
 	var w = 50 * width / multiplier
 	var d = 50 * depth / multiplier

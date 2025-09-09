@@ -29,6 +29,11 @@ func show_blocks() -> void:
 					row_instance.get("block_%d" % (j+1)).polygon.visible = false
 	else:
 		warning_label.show()
+
+func maybe_show_blocks() -> void:
+	if $ScrollContainer/VBoxContainer.get_children().size() > 0:
+		show_blocks()
+		
 func highlight_next_block() -> void:
 	if GlobalData.render_visual_storage:
 		var row_index = int((block_number - 1) / 3)

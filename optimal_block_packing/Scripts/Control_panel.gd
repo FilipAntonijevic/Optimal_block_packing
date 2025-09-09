@@ -18,6 +18,7 @@ signal add_blocks_signal()
 signal show_blocks_in_storage()
 signal switch_to_2d_view()
 signal switch_to_3d_view()
+signal maybe_show_blocks_in_storage()
 
 func _ready() -> void:
 	$Container_width_line_edit.text = str(container_width)
@@ -187,7 +188,9 @@ func collect_all_inputs() -> void:
 func _on_a_2d_button_pressed() -> void:
 	GlobalData.view_2d = true
 	emit_signal("switch_to_2d_view")
+	emit_signal("maybe_show_blocks_in_storage")
 
 func _on_a_3d_button_pressed() -> void:
 	GlobalData.view_2d = false
 	emit_signal("switch_to_3d_view")
+	emit_signal("maybe_show_blocks_in_storage")

@@ -230,6 +230,8 @@ offset_left = 32.0
 offset_top = 50.0
 offset_right = 91.0
 offset_bottom = 81.0
+text = "2D
+"
 
 [node name="a_3D_button" type="Button" parent="."]
 layout_mode = 0
@@ -237,6 +239,7 @@ offset_left = 139.0
 offset_top = 51.0
 offset_right = 206.0
 offset_bottom = 84.0
+text = "3D"
 
 [connection signal="text_changed" from="Number_of_blocks_line_edit" to="." method="_on_number_of_blocks_line_edit_text_changed"]
 [connection signal="text_submitted" from="Number_of_blocks_line_edit" to="." method="_on_number_of_blocks_line_edit_text_submitted"]
