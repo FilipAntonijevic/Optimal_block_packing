@@ -14,7 +14,7 @@ extends Node
 @export var number_of_blocks : int = 10
 
 signal draw_container_signal()
-signal add_blocks_signal()
+signal calculate_best_height()
 signal show_blocks_in_storage()
 signal switch_to_2d_view()
 signal switch_to_3d_view()
@@ -148,7 +148,7 @@ func _on_generate_blocks_button_pressed() -> void:
 	emit_signal("show_blocks_in_storage")
 
 func _on_calculate_best_block_order_button_pressed() -> void:
-	emit_signal("add_blocks_signal")
+	emit_signal("calculate_best_height")
 
 
 func _on_animation_check_button_toggled(toggled_on: bool) -> void:

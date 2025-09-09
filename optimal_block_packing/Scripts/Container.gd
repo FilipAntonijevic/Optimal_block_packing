@@ -1,5 +1,6 @@
 extends Node3D
 
+@onready var brute_force = BruteForce.new()
 @onready var blocks_node = $Container_node/Blocks
 @onready var container_node = $Container_node
 
@@ -16,9 +17,12 @@ var rotating : bool = false
 var last_mouse_pos: Vector2
 var animation_duration = 0.4
 
-signal highlight_this_block_in_storage
+signal show_blocks_in_storage()
+signal highlight_this_block_in_storage()
+signal add_blocks_done()
 
 func _ready() -> void:
+	add_child(brute_force)  
 	draw_container()
 	
 func draw_container() -> void:
@@ -76,23 +80,37 @@ func position_camera() -> void:
 		setup_2d_view()
 	else:
 		setup_3d_view()
+		
+func calculate_best_height() -> void:
+	await brute_force.calculate_best_height()
+	emit_signal("show_blocks_in_storage")
+	add_blocks()
 	
+func calculate_height() -> float:
+	add_blocks()
+	return GlobalData.package_height
+
+func calculate_height_async():
+	add_blocks()
+	return GlobalData.package_height
+
 func add_blocks() -> void:
+	GlobalData.package_height = -1
 	position_camera()
 	GlobalData.candidate_points.clear()
 	GlobalData.overlap_control_points.clear()
+	GlobalData.lowest_candidate_point_height = -1
 	GlobalData.add_candidate_point(0,0,0)
 
 	for block in blocks_node.get_children():
 		block.queue_free()
-
+	
 	if GlobalData.animations_bool:
 		for block in GlobalData.blocks:
 			await add_block(block)   
 	else:
 		for block in GlobalData.blocks:
 			add_block(block)
-
 
 func add_block(block : Block) -> void:
 	var best_point: CandidatePoint = await find_best_point_and_place_block(block)
@@ -103,18 +121,18 @@ func add_block(block : Block) -> void:
 	update_overlap_control_points()
 	autoscroll_camera()
 	emit_signal("highlight_this_block_in_storage")
-
+	
 func autoscroll_camera() -> void:
 	if camera_autoscroll_enabled:
 		if GlobalData.view_2d:
-			var new_camera_y = GlobalData.get_height() + max(GlobalData.container_depth, GlobalData.container_width) / 2
+			var new_camera_y = GlobalData.package_height + max(GlobalData.container_depth, GlobalData.container_width) / 2
 			if new_camera_y > camera_min_height:
 				var start_pos = $Camera3D.position
 				var end_pos = Vector3(start_pos.x, new_camera_y, start_pos.z)
 				var tween := create_tween()
 				tween.tween_property($Camera3D, "position", end_pos, 0.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 		else:
-			var new_camera_height = GlobalData.get_height() + max(GlobalData.container_depth, GlobalData.container_width) / 2
+			var new_camera_height = GlobalData.package_height + max(GlobalData.container_depth, GlobalData.container_width) / 2
 			if new_camera_height > camera_min_height:
 				var start_pos = $Camera3D.position
 				var end_pos = Vector3(start_pos.x, new_camera_height, start_pos.z)
@@ -229,10 +247,13 @@ func update_candidate_points(t_block_x: CandidatePoint, t_block_y: CandidatePoin
 		GlobalData.add_candidate_point(t_block_x.x, t_best_x.y, t_block_x.z)
 	if t_best_z != null:
 		GlobalData.add_candidate_point(t_block_z.x, t_best_z.y, t_block_z.z)
-	GlobalData.add_candidate_point(t_best_y.x, t_block_y.y, t_best_y.z)
+	
+	if t_best_y != null:
+		GlobalData.add_candidate_point(t_best_y.x, t_block_y.y, t_best_y.z)
 	#adding overlap control points
 	GlobalData.add_overlap_control_point_point(t_block_y.x, t_block_y.y, t_block_y.z, block.width, block.depth)
-
+	if t_block_y.y > GlobalData.package_height:
+		GlobalData.package_height = t_block_y.y
 func setup_2d_view() -> void:
 	container_node.global_transform = Transform3D.IDENTITY
 	var camera = $Camera3D
@@ -299,8 +320,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				camera_autoscroll_enabled = false
 				camera.position.y = max(camera_min_height, camera.position.y - zoom_speed)
 			elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
-				camera.position.y = min(max(GlobalData.container_width ,GlobalData.container_depth) * 2 + GlobalData.get_height(), camera.position.y + zoom_speed)
-				if camera.position.y >= GlobalData.get_height():
+				camera.position.y = min(max(GlobalData.container_width ,GlobalData.container_depth) * 2 + GlobalData.package_height, camera.position.y + zoom_speed)
+				if camera.position.y >= GlobalData.package_height:
 					camera_autoscroll_enabled = true
 	else:
 		if event is InputEventMouseButton and event.pressed:
@@ -309,6 +330,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				camera_autoscroll_enabled = false
 				camera.position.y = max(camera_min_height, camera.position.y - zoom_speed)
 			elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
-				camera.position.y = min(GlobalData.get_height() + 0.75 * GlobalData.container_width, camera.position.y + zoom_speed)
-				if camera.position.y >= GlobalData.get_height():
+				camera.position.y = min(GlobalData.package_height + 0.75 * GlobalData.container_width, camera.position.y + zoom_speed)
+				if camera.position.y >= GlobalData.package_height:
 					camera_autoscroll_enabled = true

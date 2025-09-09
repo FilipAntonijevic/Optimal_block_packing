@@ -239,7 +239,7 @@ offset_left = 139.0
 offset_top = 51.0
 offset_right = 206.0
 offset_bottom = 84.0
-text = "3D"
+text = "3d"
 
 [connection signal="text_changed" from="Number_of_blocks_line_edit" to="." method="_on_number_of_blocks_line_edit_text_changed"]
 [connection signal="text_submitted" from="Number_of_blocks_line_edit" to="." method="_on_number_of_blocks_line_edit_text_submitted"]
