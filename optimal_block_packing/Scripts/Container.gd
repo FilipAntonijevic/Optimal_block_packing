@@ -1,6 +1,7 @@
 extends Node3D
 
 @onready var brute_force = BruteForce.new()
+@onready var genetic_algorithm = Genetic_algorithm.new()
 @onready var blocks_node = $Container_node/Blocks
 @onready var container_node = $Container_node
 
@@ -23,6 +24,7 @@ signal add_blocks_done()
 
 func _ready() -> void:
 	add_child(brute_force)  
+	add_child(genetic_algorithm)
 	draw_container()
 	
 func draw_container() -> void:
@@ -82,8 +84,13 @@ func position_camera() -> void:
 		setup_3d_view()
 		
 func calculate_best_height() -> void:
-	await brute_force.calculate_best_height()
-	await get_tree().process_frame 
+	if GlobalData.algorithm == "brute_force":
+		await brute_force.calculate_best_height()
+		await get_tree().process_frame 
+	else:
+		print('aloo')
+		await genetic_algorithm.calculate_best_height()
+		await get_tree().process_frame
 	emit_signal("show_blocks_in_storage")
 	add_blocks_with_animation()
 	

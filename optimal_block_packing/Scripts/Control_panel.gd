@@ -1,6 +1,5 @@
 extends Node
 
-
 @export var container_width : float = 1
 @export var container_depth : float = 1
 
@@ -196,3 +195,25 @@ func _on_a_3d_button_pressed() -> void:
 	GlobalData.view_2d = false
 	emit_signal("switch_to_3d_view")
 	emit_signal("maybe_show_blocks_in_storage")
+
+
+@onready var brute_btn: CheckButton = $Brute_force_algorithm_check_button
+@onready var genetic_btn: CheckButton = $Genetic_algorithm_check_button
+
+func _on_brute_force_algorithm_check_button_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		genetic_btn.button_pressed = false
+		GlobalData.algorithm = "brute_force"
+	else:
+		if !genetic_btn.button_pressed:
+			genetic_btn.button_pressed = true
+			GlobalData.algorithm = "genetic_algorithm"
+
+func _on_genetic_algorithm_check_button_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		brute_btn.button_pressed = false
+		GlobalData.algorithm = "genetic_algorithm"
+	else:
+		if !brute_btn.button_pressed:
+			brute_btn.button_pressed = true
+			GlobalData.algorithm = "brute_force"

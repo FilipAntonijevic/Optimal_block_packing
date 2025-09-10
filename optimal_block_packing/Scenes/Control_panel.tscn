@@ -199,6 +199,7 @@ offset_left = 130.0
 offset_top = 478.0
 offset_right = 174.0
 offset_bottom = 502.0
+button_pressed = true
 
 [node name="Animation_check_button" type="CheckButton" parent="."]
 layout_mode = 0
@@ -260,6 +261,10 @@ text = "3d"
 [connection signal="text_changed" from="Container_width_line_edit" to="." method="_on_container_width_line_edit_text_changed"]
 [connection signal="text_submitted" from="Container_width_line_edit" to="." method="_on_container_width_line_edit_text_submitted"]
 [connection signal="pressed" from="Generate_blocks_button" to="." method="_on_generate_blocks_button_pressed"]
+[connection signal="pressed" from="Brute_force_algorithm_check_button" to="." method="_on_brute_force_algorithm_check_button_pressed"]
+[connection signal="toggled" from="Brute_force_algorithm_check_button" to="." method="_on_brute_force_algorithm_check_button_toggled"]
+[connection signal="pressed" from="Genetic_algorithm_check_button" to="." method="_on_genetic_algorithm_check_button_pressed"]
+[connection signal="toggled" from="Genetic_algorithm_check_button" to="." method="_on_genetic_algorithm_check_button_toggled"]
 [connection signal="toggled" from="Animation_check_button" to="." method="_on_animation_check_button_toggled"]
 [connection signal="pressed" from="Calculate_best_block_order_button" to="." method="_on_calculate_best_block_order_button_pressed"]
 [connection signal="pressed" from="a_2D_button" to="." method="_on_a_2d_button_pressed"]

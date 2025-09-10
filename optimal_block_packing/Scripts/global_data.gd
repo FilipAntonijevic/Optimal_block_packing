@@ -20,6 +20,7 @@ extends Node
 @export var view_2d : bool = false
 @export var calculation_in_progress : bool = false
 
+@export var algorithm = ""
 @export var package_height: float = 0
 
 func _ready() -> void:
