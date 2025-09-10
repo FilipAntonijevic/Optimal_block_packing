@@ -88,7 +88,6 @@ func calculate_best_height() -> void:
 		await brute_force.calculate_best_height()
 		await get_tree().process_frame 
 	else:
-		print('aloo')
 		await genetic_algorithm.calculate_best_height()
 		await get_tree().process_frame
 	emit_signal("show_blocks_in_storage")
@@ -97,11 +96,6 @@ func calculate_best_height() -> void:
 func calculate_height() -> float:
 	add_blocks()
 	return GlobalData.package_height
-
-func calculate_height_async():
-	add_blocks()
-	return GlobalData.package_height
-
 
 func add_blocks() -> void:
 	GlobalData.package_height = -1

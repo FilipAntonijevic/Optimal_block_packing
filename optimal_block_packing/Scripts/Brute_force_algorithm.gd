@@ -21,12 +21,10 @@ func calculate_best_height() -> void:
 	for block in original_blocks:
 		original_ids.append(block.id)
 
-	print("Počinjem testiranje permutacija...")
+	print("Brute algorithm begun!")
 	test_permutations(original_ids, block_ids)
-
-	print("Brute force završen!")
-	print("Najbolja visina: ", best_height)
-	print("Najbolja permutacija: ", best_permutation)
+	print("Best height: ", best_height)
+	print("Best block permutation: ", best_permutation)
 
 	var new_order := []
 	for id in best_permutation:
@@ -52,8 +50,6 @@ func test_permutations(ids: Array, block_ids: Dictionary) -> void:
 			best_height = height
 			best_permutation.clear()
 			best_permutation.append_array(perm)
-	print(best_permutation)
-	print('Height' + str(best_height))
 
 func permutations(arr: Array) -> Array:
 	if arr.size() <= 1:
