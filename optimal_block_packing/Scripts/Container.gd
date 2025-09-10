@@ -310,9 +310,10 @@ func update_candidate_points(t_block_x: CandidatePoint, t_block_y: CandidatePoin
 
 	if t_best_x != null:
 		GlobalData.add_candidate_point(t_block_x.x, t_best_x.y, t_block_x.z)
+		GlobalData.add_candidate_point(t_block_x.x, t_best_x.y, 0)
 	if t_best_z != null:
 		GlobalData.add_candidate_point(t_block_z.x, t_best_z.y, t_block_z.z)
-	
+		GlobalData.add_candidate_point(0, t_best_z.y, t_block_z.z)
 	if t_best_y != null:
 		GlobalData.add_candidate_point(t_best_y.x, t_block_y.y, t_best_y.z)
 	#adding overlap control points
