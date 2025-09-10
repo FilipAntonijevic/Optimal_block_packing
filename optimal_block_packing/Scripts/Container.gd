@@ -326,7 +326,7 @@ func setup_2d_view() -> void:
 
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	camera.near = 0.1
-	camera.far = 20000
+	camera.far = 200000000
 	
 	var target = Vector3(GlobalData.container_width / 2.0, 0, GlobalData.container_width / 2.0)
 	var distance = GlobalData.container_width * 100.0
