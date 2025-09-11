@@ -28,14 +28,15 @@ func _ready() -> void:
 	
 func remove_blocks_from_container() -> void:
 	for child in $Container_node/Blocks.get_children():
-			if child is MeshInstance3D:
-				child.queue_free()
+		if child is MeshInstance3D:
+			child.queue_free()
 			
 func draw_container() -> void:
-	await remove_blocks_from_container()
+	for child in container_node.get_children():
+		if child is MeshInstance3D:
+			child.queue_free()
 	container_node.rotation = Vector3.ZERO
 	container_node.global_transform = Transform3D.IDENTITY
-
 
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_LINES)
@@ -323,6 +324,7 @@ func update_candidate_points(t_block_x: CandidatePoint, t_block_y: CandidatePoin
 	GlobalData.add_overlap_control_point_point(t_block_y.x, t_block_y.y, t_block_y.z, block.width, block.depth)
 	if t_block_y.y > GlobalData.package_height:
 		GlobalData.package_height = t_block_y.y
+		
 func setup_2d_view() -> void:
 	container_node.global_transform = Transform3D.IDENTITY
 	var camera = $Camera3D
@@ -339,8 +341,7 @@ func setup_2d_view() -> void:
 	camera.position = base_position
 	camera.look_at(target, Vector3.UP)
 	camera.position.y = base_position.y + desired_y 
-
-	camera_min_height += camera.position.y
+	camera_min_height = camera.position.y
 
 func setup_3d_view() -> void:
 	container_node.global_transform = Transform3D.IDENTITY
@@ -399,6 +400,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				camera_autoscroll_enabled = false
 				camera.position.y = max(camera_min_height, camera.position.y - zoom_speed)
 			elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
-				camera.position.y = min(GlobalData.package_height + GlobalData.container_width / 2, camera.position.y + zoom_speed)
+				camera.position.y = min(camera_min_height + GlobalData.package_height , camera.position.y + zoom_speed)
 				if camera.position.y >= GlobalData.package_height:
 					camera_autoscroll_enabled = true
