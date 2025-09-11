@@ -1,7 +1,6 @@
 extends Node3D
 
 @onready var brute_force = BruteForce.new()
-@onready var genetic_algorithm = Genetic_algorithm.new()
 @onready var blocks_node = $Container_node/Blocks
 @onready var container_node = $Container_node
 
@@ -21,16 +20,19 @@ var animation_duration = 0.4
 signal show_blocks_in_storage()
 signal highlight_this_block_in_storage()
 signal add_blocks_done()
+signal calculation_finished()
 
 func _ready() -> void:
 	add_child(brute_force)  
-	add_child(genetic_algorithm)
 	draw_container()
 	
+func remove_blocks_from_container() -> void:
+	for child in $Container_node/Blocks.get_children():
+			if child is MeshInstance3D:
+				child.queue_free()
+			
 func draw_container() -> void:
-	for child in container_node.get_children():
-		if child is MeshInstance3D:
-			child.queue_free()
+	await remove_blocks_from_container()
 	container_node.rotation = Vector3.ZERO
 	container_node.global_transform = Transform3D.IDENTITY
 
@@ -84,18 +86,20 @@ func position_camera() -> void:
 		setup_3d_view()
 		
 func calculate_best_height() -> void:
-	if GlobalData.algorithm == "brute_force":
-		await brute_force.calculate_best_height()
-		await get_tree().process_frame 
-	else:
-		await genetic_algorithm.calculate_best_height()
-		await get_tree().process_frame
+	await brute_force.calculate_best_height()
+	await get_tree().process_frame 
 	emit_signal("show_blocks_in_storage")
-	add_blocks_with_animation()
+	await add_blocks_with_animation()
+	emit_signal("calculation_finished")
 	
 func calculate_height() -> float:
 	add_blocks()
 	return GlobalData.package_height
+
+func calculate_height_async():
+	add_blocks()
+	return GlobalData.package_height
+
 
 func add_blocks() -> void:
 	GlobalData.package_height = -1
@@ -310,10 +314,9 @@ func update_candidate_points(t_block_x: CandidatePoint, t_block_y: CandidatePoin
 
 	if t_best_x != null:
 		GlobalData.add_candidate_point(t_block_x.x, t_best_x.y, t_block_x.z)
-		GlobalData.add_candidate_point(t_block_x.x, t_best_x.y, 0)
 	if t_best_z != null:
 		GlobalData.add_candidate_point(t_block_z.x, t_best_z.y, t_block_z.z)
-		GlobalData.add_candidate_point(0, t_best_z.y, t_block_z.z)
+	
 	if t_best_y != null:
 		GlobalData.add_candidate_point(t_best_y.x, t_block_y.y, t_best_y.z)
 	#adding overlap control points
@@ -326,7 +329,7 @@ func setup_2d_view() -> void:
 
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	camera.near = 0.1
-	camera.far = 200000000
+	camera.far = 20000
 	
 	var target = Vector3(GlobalData.container_width / 2.0, 0, GlobalData.container_width / 2.0)
 	var distance = GlobalData.container_width * 100.0
