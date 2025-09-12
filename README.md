@@ -29,6 +29,7 @@ The next block is either next to the first block (on either side, if it can fit)
 --image--
 
 We can define our block placing algorithm with:
+
 0) A structure that holds all our candidate points
 1) A part of the algorithm that iterates through said structure and finds the best possible point to place the next block into
 2) A part of the algorithm that adds new candidate points to the structure for future blocks to be added into
@@ -107,6 +108,7 @@ However, it’s not enough to just find the lowest candidate point that doesn’
 --image--
 
 This means that when placing a new block we need to:
+
 0) Create an array of possible points for our block
 1) Go through all candidate points
 2) Check if placing a new block into a candidate point t would overlap with any other block B
