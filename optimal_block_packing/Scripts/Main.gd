@@ -18,7 +18,7 @@ func _ready() -> void:
 	container.calculation_finished.connect(update_label)
 	
 func update_label() -> void:
-	$Label.text = "Best height: " + str(GlobalData.package_height)
+	$Label.text = "Best height: " + String.num(GlobalData.package_height, 3)
 	$Label.show()
 	
 func hide_label() -> void:
