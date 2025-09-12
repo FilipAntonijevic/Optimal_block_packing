@@ -1,20 +1,19 @@
-Optimal block packing
+# Optimal block packing
 
 In this problem, we are trying to find an optimal way to pack n pseudo randomly generated blocks into a container.
 We are trying to minimize container height, while still being able to pack all of the blocks.
 This means we need to find the best order in which we are going to be placing blocks into the container.
 
 Program consists of two parts:
-
 1) Block placing algorithm
 2) Finding optimal order of placing blocks
 
-Block placing algorithm:
-Initial idea:
+## Block placing algorithm:
+### Initial idea:
 We are trying to make a block placing algorithm that:
 1) Doesn’t allow illegal block states
 2) Is optimal for a certain order of blocks
-3) Is fast
+3) Is reasonable fast
 
 In order for the algorithm to be optimal it has to always place the next block in the lowest possible space.
 
@@ -44,11 +43,13 @@ Illegal block states are:
 3) Overlapping blocks - Blocks that when placed overlap with already placed blocks
 4) Ghost blocks - Blocks that pass through another block while falling into a space
 
-Outside blocks:
-By checking if a block can fit in a space before placing it in that candidate point, we already solved Outside blocks.
+### Outside blocks:
+For each new block, before placing it into a point, we need to check if that block will fit inside the container.
+```
+if p.x + block.width <= container_width and p.z + block.depth <= container_depth:
+```
 
-Floating blocks:
-In order to solve floating blocks we need to solve this edge case:
+### Floating blocks:
 --image--
 As we can see it’s not enough to simply add points A, B and C as new candidate points.
 Let’s focus on point A:
@@ -57,28 +58,32 @@ Instead we want (A.x , p_best_A.y, A.z) to be the next candidate point, where p_
 We can find this point p_best by going through all other points that have smaller x, y and z than our block, and finding the closest one to it:
 
 For our condition on which candidate points are possible we use:
+```
 if p.x <= A.x and p.y <= A.y and p.z <= A.z:
+```
 
 And to find the closest one (in a top down 2D view):
 p_best_A = p_i | max((p_i.x + 1) * (p_i.z + 1)) for every i
 
-We added +1 to each coordinate to avoid multiplication with a 0 value.
+We increase each coordinate by 1 to avoid multiplication with a 0 value.
 
 Finding the actual candidate point for point B is analogous.
 
-Even though it may seem like C will always be a candidate point we can see that is not the case in this image:
+Even though it may seem like C will always be a candidate point we can see that is not the case:
 --image--
 
 This means we need to repeat a similar process for finding the candidate point for point C.
 This candidate point will be (p_best_C.x , C.y, p_best_C.z)
 And p_best_C we are finding in a subset of all candidate points that meet the condition:
+```
 if p.x <= A.x and p.y <= A.y and p.z <= A.z:
+```
 and out of all those points we select the highest one:
 p_best_C = p_i | max(p_i.y) for every i
 
 This is the candidate point adding part of the algorithm.
 
-Overlapping blocks:
+### Overlapping blocks:
 To solve this problem we need to expand on our candidate points structure.
 
 When placing a block into a candidate point, we need to be able to check if that block will overlap with any other block:
@@ -90,7 +95,7 @@ This means we need to save some information about block size as well as candidat
 We will have 2 arrays: one for candidate points and another for control points (to check for overlaps), and then with each new block, besides updating candidate points, we need to add that block’s overlap control point to the control points array.
 --image---- image --
 
-The overlap control point besides (x,y,z) has block’s width and block’s depth.
+The overlap control point besides (x,y,z) holds block’s width and block’s depth.
 This isn’t enough to recreate the whole block, but we don’t have to. We only need to check if the block will intersect with any of the rectangles above it in the top down 2D view:
 --image--
 
@@ -111,7 +116,7 @@ This means that when placing a new block we need to:
 
 This is the first part of our block placing algorithm.
 
-Ghost blocks:
+### Ghost blocks:
 The second part of the project (optimized order of placing blocks) doesn’t have a point if we allow ghost blocks,
 since every block will be placed in any free spot it can fit into.
 However, we are trying to mimic real life packaging, and with that in mind we can’t allow blocks to pass through each other.
@@ -122,21 +127,23 @@ We are already doing this in step 2.2 by incrementally increasing block height i
 
 We will also delete all the candidate points that are directly under any block, to reduce the future number of iterations.
 Upon placing a block we check:
-
+```
 for p in candidate_points[]:
 if p.x < A.x and p.x > B.x and p.z < B.z and p.z > A.z and p.y < A.y:
 candidate_points.remove(p)
-
+```
 This is the deletion part of the block placing algorithm.
 
-Extra edge case
+### Extra edge case
 Lastly there is one more edge case that arises, that needs to be solved in order to keep algorithms optimality for each new block added.
 --image--
 
 To solve this we simply need to add 2 more candidate points when adding a new block:
 (t_block_x.x, t_best_x.y, 0), (0, t_best_z.y, t_block_z.z)
 
-Forming an algorithm:
+--image-- 
+
+## Forming an algorithm:
 0) Array of candidate points and overlap control points. Candidate point is tuple (x,y,z). Overlap control point is tuple (x,y,z,width,depth).
 1) Find the best point for a new block.
 2) Add new candidate points
@@ -152,9 +159,9 @@ The time complexity of this part of the algorithm is therefore (in practice) no 
 
 We can combine steps 2), 3) and 4) and do them simultaneously, to save time.
 
-Final version of the algorithm:
+**Final version of the algorithm:**
+
 0) Array of candidate points and overlap control points. Candidate point is tuple (x,y,z). Overlap control point is tuple (x,y,z,width,depth).
 1) Find the best point for a new block. At worst O(N * M * K)
 2) Update candidate points. At worst O(N), N = number of candidate points
 3) Delete unnecessary overlap control points. O(M), M = number of overlap control points
-4) Hoćeš da ti ispravim i drugi deo teksta (o optimalnom redu stavljanja blokova), ako ga napišeš?
