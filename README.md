@@ -25,8 +25,12 @@ We want to place as many blocks as possible on each level.
 With this in mind, it’s trivial to deduce that placing blocks right next to each other, and next to container walls, is better than placing blocks randomly onto said level, since it leaves more space for other blocks to fit into.
 
 It follows that the optimal place for the first block is (0,0,0).
-The next block is either next to the first block (on either side, if it can fit), or in (0, first block height, 0), if it cannot fit.
---image--
+
+The next block is either next to the first block (on either side), if it can fit, or in (0, first block height, 0), if it cannot fit.
+
+
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/55eb919c-f18f-484d-a2c4-39bd1eebc9b1" />
+
 
 We can define our block placing algorithm with:
 
@@ -45,13 +49,21 @@ Illegal block states are:
 4) Ghost blocks - Blocks that pass through another block while falling into a space
 
 ### Outside blocks:
-For each new block, before placing it into a point, we need to check if that block will fit inside the container.
+
+
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/22b69b71-b3d4-4e5a-bc02-ec63c9c3814f" />
+
+For each new block, before placing it into a point, we need to check if that block will fit inside the container:
 ```
 if p.x + block.width <= container_width and p.z + block.depth <= container_depth:
 ```
 
 ### Floating blocks:
---image--
+
+
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/0a9be47c-f2bf-4cd7-930a-d84690eae7a3" />
+
+
 As we can see it’s not enough to simply add points A, B and C as new candidate points.
 Let’s focus on point A:
 We don’t want to add A as a candidate point.
@@ -71,9 +83,12 @@ We increase each coordinate by 1 to avoid multiplication with a 0 value.
 Finding the actual candidate point for point B is analogous.
 
 Even though it may seem like C will always be a candidate point we can see that is not the case:
---image--
 
-This means we need to repeat a similar process for finding the candidate point for point C.
+
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/03d993b5-7b3c-4526-85da-080e8dbb1030" />
+
+
+In this case, if we don't repeat a similar process for finding the candidate point for point C, there wouldnt be a legal placement for next block.
 This candidate point will be (p_best_C.x , C.y, p_best_C.z)
 And p_best_C we are finding in a subset of all candidate points that meet the condition:
 ```
@@ -85,27 +100,31 @@ p_best_C = p_i | max(p_i.y) for every i
 This is the candidate point adding part of the algorithm.
 
 ### Overlapping blocks:
-To solve this problem we need to expand on our candidate points structure.
+
+
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/779c1086-02d6-4eea-94bd-b03846c56323" />
+
 
 When placing a block into a candidate point, we need to be able to check if that block will overlap with any other block:
---image--
+To solve this problem we need to expand on our candidate points structure.
 
-For each candidate point p we need to check if the new block will intersect any other block.
+For each candidate point p we need to check if the new block will intersect any other block when placed into point p.
 This means we need to save some information about block size as well as candidate points.
-
 We will have 2 arrays: one for candidate points and another for control points (to check for overlaps), and then with each new block, besides updating candidate points, we need to add that block’s overlap control point to the control points array.
---image---- image --
-
 The overlap control point besides (x,y,z) holds block’s width and block’s depth.
 This isn’t enough to recreate the whole block, but we don’t have to. We only need to check if the block will intersect with any of the rectangles above it in the top down 2D view:
---image--
 
-What if an already placed block A would be above block B, if we place it into candidate point p, but they wouldn’t intersect?
---image--
-We mark candidate point p as illegal for block B, since that would be a ghost block.
+
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/d6054815-e586-4350-9fa6-1a3161e43792" />
+
 
 However, it’s not enough to just find the lowest candidate point that doesn’t allow for overlapping blocks, because there might be a more optimal place for a block:
---image--
+
+
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/4e35a613-94d3-455c-9e71-7eac7a98db09" />
+
+
+Most optimal place for this block is point B, yet our algorithm would try to place it in block A, and end up placing it in higher place then necessary.
 
 This means that when placing a new block we need to:
 
@@ -138,12 +157,20 @@ This is the deletion part of the block placing algorithm.
 
 ### Extra edge case
 Lastly there is one more edge case that arises, that needs to be solved in order to keep algorithms optimality for each new block added.
---image--
 
+
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/ac0adb17-e0f4-40c3-b737-d7dbc33ed4a0" />
+
+
+Most optimal place for this block is point A, but we never added this candidate point.
 To solve this we simply need to add 2 more candidate points when adding a new block:
-(t_block_x.x, t_best_x.y, 0), (0, t_best_z.y, t_block_z.z)
 
---image-- 
+
+<img width="600" height="600" alt="image" src="https://github.com/user-attachments/assets/e62477ec-79f7-407a-9553-d16c585232e8" />
+
+
+A = (t_block_x.x, t_best_x.y, 0)
+B = (0, t_best_z.y, t_block_z.z)
 
 ## Forming an algorithm:
 0) Array of candidate points and overlap control points. Candidate point is tuple (x,y,z). Overlap control point is tuple (x,y,z,width,depth).
