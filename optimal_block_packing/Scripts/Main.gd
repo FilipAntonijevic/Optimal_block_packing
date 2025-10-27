@@ -9,6 +9,7 @@ func _ready() -> void:
 	control_panel.calculate_best_height.connect(container.calculate_best_height)
 	control_panel.show_blocks_in_storage.connect(block_storage.show_blocks)
 	control_panel.show_blocks_in_storage.connect(hide_label)
+	control_panel.hide_label.connect(hide_label)
 	control_panel.show_blocks_in_storage.connect(container.remove_blocks_from_container)
 	control_panel.switch_to_2d_view.connect(container.setup_2d_view)
 	control_panel.switch_to_3d_view.connect(container.setup_3d_view)

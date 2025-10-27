@@ -37,9 +37,11 @@ extends Node
 		
 		$Calculate_best_block_order_button,
 		$a_2D_button,
-		$a_3D_button]
+		$a_3D_button,
+		$Animation_check_button,
+		$Label12]
 		
-		
+signal hide_label()
 signal draw_container_signal()
 signal calculate_best_height()
 signal show_blocks_in_storage()
@@ -176,6 +178,7 @@ func _on_generate_blocks_button_pressed() -> void:
 	emit_signal("show_blocks_in_storage")
 
 func _on_calculate_best_block_order_button_pressed() -> void:
+	emit_signal("hide_label")
 	disable_all_buttons()
 	await get_tree().process_frame 
 	await get_tree().process_frame 
