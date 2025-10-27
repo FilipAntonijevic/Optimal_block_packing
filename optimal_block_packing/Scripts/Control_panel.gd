@@ -12,6 +12,34 @@ extends Node
 
 @export var number_of_blocks : int = 10
 
+@onready var controls = [
+		$Label3,
+		$Label2,
+		$Label5,
+		$Label6,
+		$Label7,
+		$Label8,
+		$Label10,
+		$Label11,
+		$Number_of_blocks_line_edit,
+		$Block_max_height_line_edit,
+		$Block_min_height_line_edit,
+		$Block_max_depth_line_edit,
+		$Block_min_depth_line_edit,
+		$Block_max_width_line_edit,
+		$Block_min_width_line_edit,
+		$Container_depth_line_edit,
+		$Container_width_line_edit,
+
+		$Generate_blocks_button,
+		$Brute_force_algorithm_check_button,
+		$Genetic_algorithm_check_button,
+		
+		$Calculate_best_block_order_button,
+		$a_2D_button,
+		$a_3D_button]
+		
+		
 signal draw_container_signal()
 signal calculate_best_height()
 signal show_blocks_in_storage()
@@ -29,7 +57,7 @@ func _ready() -> void:
 	$Block_min_height_line_edit.text = str(block_min_height)
 	$Block_max_height_line_edit.text = str(block_max_height)
 	$Number_of_blocks_line_edit.text = str(number_of_blocks)
-
+	
 
 func _on_container_width_line_edit_text_submitted(new_text: String) -> void:
 	if new_text.to_float() < 1:
@@ -148,7 +176,40 @@ func _on_generate_blocks_button_pressed() -> void:
 	emit_signal("show_blocks_in_storage")
 
 func _on_calculate_best_block_order_button_pressed() -> void:
+	disable_all_buttons()
+	await get_tree().process_frame 
+	await get_tree().process_frame 
 	emit_signal("calculate_best_height")
+	await get_tree().process_frame 
+	enable_all_buttons()
+	
+func disable_all_buttons() -> void:
+	for c in controls:
+		disable_ui(c)
+
+func disable_ui(c: Control):
+	if c.has_method("set_disabled"):
+		c.disabled = true
+	
+	if c is LineEdit:
+		c.editable = false
+		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	c.modulate = Color(0.6, 0.6, 0.6) 
+
+func enable_all_buttons() -> void:
+	for c in controls:
+		enable_ui(c)
+
+func enable_ui(c: Control):
+	if c.has_method("set_disabled"):
+		c.disabled = false
+	
+	if c is LineEdit:
+		c.editable = true
+		c.mouse_filter = Control.MOUSE_FILTER_STOP
+	
+	c.modulate = Color(1, 1, 1)
 
 
 func _on_animation_check_button_toggled(toggled_on: bool) -> void:
@@ -189,11 +250,21 @@ func _on_a_2d_button_pressed() -> void:
 	GlobalData.view_2d = true
 	GlobalData.min_block_depth = GlobalData.max_block_depth
 	$Block_min_depth_line_edit.text = str(GlobalData.min_block_depth)
+	disable_ui($Container_depth_line_edit)
+	disable_ui($Label3)
+	disable_ui($Label6)
+	disable_ui($Block_max_depth_line_edit)
+	disable_ui($Block_min_depth_line_edit)
 	emit_signal("switch_to_2d_view")
 	emit_signal("maybe_show_blocks_in_storage")
 
 func _on_a_3d_button_pressed() -> void:
 	GlobalData.view_2d = false
+	enable_ui($Container_depth_line_edit)
+	enable_ui($Label3)
+	enable_ui($Label6)
+	enable_ui($Block_max_depth_line_edit)
+	enable_ui($Block_min_depth_line_edit)
 	emit_signal("switch_to_3d_view")
 	emit_signal("maybe_show_blocks_in_storage")
 

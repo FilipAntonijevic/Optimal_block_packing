@@ -24,6 +24,8 @@ extends Node
 @export var algorithm = ""
 @export var package_height: float = 0
 
+@export var algorithm_in_progress : bool = false
+
 func _ready() -> void:
 	add_candidate_point(0, 0, 0)
 
