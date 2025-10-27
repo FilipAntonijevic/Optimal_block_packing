@@ -133,6 +133,7 @@ func _on_number_of_blocks_line_edit_text_submitted(new_text: String) -> void:
 func _on_generate_blocks_button_pressed() -> void:
 	GlobalData.blocks.clear()
 	collect_all_inputs()
+	GlobalData.number_of_blocks = number_of_blocks
 	for i in range(number_of_blocks):
 		var block = Block.new()
 		block.id = i + 1

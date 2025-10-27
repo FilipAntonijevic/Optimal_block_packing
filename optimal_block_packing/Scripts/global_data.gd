@@ -11,6 +11,7 @@ extends Node
 
 
 @export var blocks: Array = []
+@export var number_of_blocks: int = 0
 @export var candidate_points: Array[CandidatePoint] = [] 
 @export var overlap_control_points: Array[OverlapControlPoint] = []
 @export var lowest_candidate_point_height : float = 0

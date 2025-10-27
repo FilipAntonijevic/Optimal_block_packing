@@ -5,13 +5,14 @@ var best_height := INF
 var best_permutation := []
 
 var population_size := 50
-var generations := 200
+var generations := 100
 var mutation_rate := 0.1
 var elitism := 2
 
 var max_no_improve := 20
 
 func calculate_best_height() -> void:
+	generations = int(sqrt(GlobalData.number_of_blocks))
 	best_height = INF
 	best_permutation.clear()
 

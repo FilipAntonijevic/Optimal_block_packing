@@ -89,19 +89,17 @@ func position_camera() -> void:
 		setup_3d_view()
 		
 func calculate_best_height() -> void:
-	if GlobalData.algorithm == "brute_force":		
+	if GlobalData.algorithm == "brute_force":
 		await brute_force.calculate_best_height()
 		await get_tree().process_frame 
 		emit_signal("show_blocks_in_storage")
-		await add_blocks_with_animation()
-		emit_signal("calculation_finished")
 	else:
 		await genetic_alg.calculate_best_height()
 		await get_tree().process_frame 
 		emit_signal("show_blocks_in_storage")
-		await add_blocks_with_animation()
-		emit_signal("calculation_finished")
-		
+	await add_blocks_with_animation()
+	emit_signal("calculation_finished")
+
 	
 func calculate_height() -> float:
 	add_blocks()
