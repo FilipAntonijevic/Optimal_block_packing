@@ -194,3 +194,21 @@ We can combine steps 2), 3) and 4) and do them simultaneously, to save time.
 1) Find the best point for a new block. At worst O(N * M * K)
 2) Update candidate points. At worst O(N), N = number of candidate points
 3) Delete unnecessary overlap control points. O(M), M = number of overlap control points
+
+## Genetic algorithm
+
+The exhaustive permutation search algorithm will always produce the optimal solution, but it is only feasible for small sequence sizes. Once the number of blocks exceeds 8, the program can no longer compute all possible values to find the best solution. This is where the genetic algorithm comes into play. While it does not guarantee the optimal solution, it provides a sufficiently good one. Based on the given parameters, it converges toward the true solution.
+
+The key parameters are:
+- fitness
+- population_size 
+- generations
+- mutation_rate
+- elitism
+- max_no_improve
+
+To avoid redundant computations, the fitness values of permutations were stored in the fitness_cache array, since this part of the program consumed the most time.
+
+The new generation was created first by copying the best individuals (elitism), followed by crossover between individuals from the top half of the population sorted by fitness quality, in order to produce the highest-quality offspring. During this process, mutation was also applied with a certain probability.
+
+Additionally, if the best fitness did not improve over a specified number of generations, the program terminated early.
